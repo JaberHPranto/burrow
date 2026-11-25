@@ -64,6 +64,11 @@ export default function Screenshot({ autoRun }: ToolProps) {
   const [stroke, setStroke] = useState(4);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [silent, setSilent] = useState(true);
+
+  useEffect(() => {
+    void commands.silentCaptureAvailable().then(setSilent);
+  }, []);
 
   useWindowSize(1100, 740, image !== null);
 
@@ -198,26 +203,34 @@ export default function Screenshot({ autoRun }: ToolProps) {
 
   if (!image) {
     return (
-      <EmptyState
-        title={busy ? "Select an area…" : "Capture something"}
-        mood={busy ? "sleepy" : "curious"}
-        action={
-          <Row gap={2}>
-            <Button variant="primary" icon={Camera} onClick={capture} disabled={busy}>
-              Capture screen
-            </Button>
-            <FilePicker
-              accept="image/*"
-              label="Open image"
-              onFile={async (f) => load(new Uint8Array(await f.arrayBuffer()))}
-            />
-          </Row>
-        }
-      >
-        Drag over any part of the screen, then copy, save or annotate it. You can also paste (
-        <Kbd>Ctrl</Kbd> <Kbd>V</Kbd>) or drop an image here.
+      <>
+        <EmptyState
+          title={busy ? "Select an area…" : "Capture something"}
+          mood={busy ? "sleepy" : "curious"}
+          action={
+            <Row gap={2}>
+              <Button variant="primary" icon={Camera} onClick={capture} disabled={busy}>
+                Capture screen
+              </Button>
+              <FilePicker
+                accept="image/*"
+                label="Open image"
+                onFile={async (f) => load(new Uint8Array(await f.arrayBuffer()))}
+              />
+            </Row>
+          }
+        >
+          Drag over any part of the screen, then copy, save or annotate it. You can also paste (
+          <Kbd>Ctrl</Kbd> <Kbd>V</Kbd>) or drop an image here.
+          {!silent && (
+            <span className={styles.tip}>
+              GNOME will ask “Share this screenshot?” each time. Run{" "}
+              <code>sudo apt install gnome-screenshot</code> to skip it.
+            </span>
+          )}
+        </EmptyState>
         {snip.overlay}
-      </EmptyState>
+      </>
     );
   }
 

@@ -33,8 +33,9 @@ export const overlayWindow = {
     if (!isTauri()) return;
     const { getCurrentWindow } = await import("@tauri-apps/api/window");
     const win = getCurrentWindow();
-    await win.setFullscreen(true);
+    // Show before going fullscreen: GNOME ignores fullscreen requests for unmapped windows.
     await win.show();
+    await win.setFullscreen(true);
     await win.setFocus();
   },
   async exit(): Promise<void> {

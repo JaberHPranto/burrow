@@ -68,7 +68,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 For OCR (optional): `sudo apt install tesseract-ocr tesseract-ocr-eng tesseract-ocr-ben`.
-Screenshots and the colour picker use `xdg-desktop-portal-gnome`, which Ubuntu ships by default.
+For dialog-free screenshots: `sudo apt install gnome-screenshot`. GNOME lets only its own screenshot
+helper capture silently; without it Burrow falls back to the screenshot portal, which on Ubuntu 22.04
+asks "Share this screenshot?" every time. The colour picker uses the portal (no prompt).
 
 For the tray icon on GNOME, make sure the AppIndicator extension is on
 (Ubuntu ships it enabled): `gnome-extensions enable ubuntu-appindicators@ubuntu.com`.
@@ -115,7 +117,7 @@ The tray menu has the same quick actions.
 Inside Burrow: `↑` `↓` to move, `Enter` to open, `Esc` to go back or close.
 
 **Selection overlay keys:** drag to select · `Space` / double-click whole screen · `Enter` copy ·
-`Ctrl+S` save · `E` annotate · `Esc` cancel. GNOME may ask once whether Burrow may take screenshots.
+`Ctrl+S` save · `E` annotate · `Esc` cancel.
 
 **Screenshot editor keys:** `V` select/move · `A` arrow · `R` box · `E` ellipse · `H` highlight ·
 `B` pixelate · `T` text · `N` numbered step · `C` crop · `Del` delete · `Ctrl+Z` / `Ctrl+Shift+Z` undo/redo ·

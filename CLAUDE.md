@@ -96,8 +96,9 @@ Use `src/tools/json-formatter/` as the reference implementation.
 
 - **Global hotkeys:** apps can't grab them on Wayland. GNOME custom shortcuts run `burrow --toggle` / `burrow --tool <id>`; `tauri-plugin-single-instance` forwards args to the running app (`cli.rs` → `window.rs`). Setup: `scripts/setup-gnome-shortcuts.sh`.
 - **Tray:** GNOME delivers no click events to tray icons, only the menu. Put actions in the menu.
-- **Screenshots:** `xdg-desktop-portal` via `ashpd` (`commands/capture.rs`), **non-interactive** (no GNOME
-  dialog): Burrow hides, grabs the whole screen, then `core/capture/useSnip` shows it in a fullscreen
+- **Screenshots:** whole-screen grab via `gnome-screenshot -f` (allow-listed by GNOME Shell → no dialog),
+  falling back to `xdg-desktop-portal` via `ashpd` (`commands/capture.rs`), which on GNOME 42 asks
+  "Share this screenshot?" each time for unsandboxed apps. Burrow hides, grabs the whole screen, then `core/capture/useSnip` shows it in a fullscreen
   overlay where the user drags a region (Flameshot-style). Tools call `snip.start({ withActions })` and
   render `snip.overlay`. Overlay keys are handled in the capture phase so `Esc` never reaches ToolHost.
   The overlay maps view ↔ image pixels with `containFit` (handles HiDPI; multi-monitor is letterboxed).

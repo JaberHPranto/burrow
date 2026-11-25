@@ -4,7 +4,7 @@
 //! UI (area/window/screen picker, or the colour-picker crosshair) and hands back
 //! the result. Burrow's window is hidden while that happens so it isn't captured.
 
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use ashpd::desktop::{screenshot::Screenshot, Color};
 use serde::Serialize;
@@ -45,14 +45,20 @@ where
 
 /// Capture the screen and return the PNG bytes as a raw binary response.
 ///
-/// - `interactive: false` grabs the whole screen with no dialog; Burrow then lets
-///   the user select a region in its own overlay (the default flow).
+/// - `interactive: false` grabs the whole screen (silently via `gnome-screenshot`
+///   when installed, else the portal, which may ask for confirmation); Burrow then
+///   lets the user select a region in its own overlay (the default flow).
 /// - `interactive: true` shows GNOME's screenshot dialog instead.
 /// - `reshow: false` keeps the window hidden on success so the frontend can
 ///   present the fullscreen selection overlay without a flash of the launcher.
 #[tauri::command]
 pub async fn capture_screenshot(app: AppHandle, interactive: bool, reshow: bool) -> Result<Response> {
     while_hidden(&app, reshow, || async {
+        if !interactive {
+            if let Some(bytes) = grab_with_gnome_screenshot().await {
+                return Ok(Response::new(bytes));
+            }
+        }
         let shot = Screenshot::request()
             .interactive(interactive)
             .modal(true)
@@ -68,6 +74,35 @@ pub async fn capture_screenshot(app: AppHandle, interactive: bool, reshow: bool)
         Ok(Response::new(bytes))
     })
     .await
+}
+
+/// Silent whole-screen grab with `gnome-screenshot`.
+///
+/// GNOME 42's portal asks "Share this screenshot?" on every non-interactive
+/// request from unsandboxed apps. `gnome-screenshot` is allow-listed by GNOME
+/// Shell, so it captures without any dialog. Returns `None` when it isn't
+/// installed or fails, and the caller falls back to the portal.
+async fn grab_with_gnome_screenshot() -> Option<Vec<u8>> {
+    let nanos = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+    let path = std::env::temp_dir().join(format!("burrow-shot-{}-{nanos}.png", std::process::id()));
+    let status = tokio::process::Command::new("gnome-screenshot")
+        .arg("-f")
+        .arg(&path)
+        .status()
+        .await
+        .ok()?;
+    let bytes = if status.success() { tokio::fs::read(&path).await.ok() } else { None };
+    let _ = tokio::fs::remove_file(&path).await;
+    bytes.filter(|b| !b.is_empty())
+}
+
+/// Is `gnome-screenshot` on PATH? Lets the UI explain how to avoid GNOME's
+/// confirmation dialog when it isn't.
+#[tauri::command]
+pub fn silent_capture_available() -> bool {
+    std::env::var_os("PATH")
+        .map(|paths| std::env::split_paths(&paths).any(|dir| dir.join("gnome-screenshot").is_file()))
+        .unwrap_or(false)
 }
 
 #[derive(Serialize)]

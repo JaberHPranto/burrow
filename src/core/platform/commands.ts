@@ -72,6 +72,8 @@ export const commands = {
       }),
     ),
   pickColor: () => call<PickedColor>("pick_color"),
+  /** True when screenshots can be taken without GNOME's confirmation dialog. */
+  silentCaptureAvailable: () => call<boolean>("silent_capture_available"),
 
   ocrStatus: () => call<OcrStatus>("ocr_status"),
   ocrImage: (bytes: Uint8Array, lang: string) =>
