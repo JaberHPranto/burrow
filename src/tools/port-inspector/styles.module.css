@@ -1,0 +1,48 @@
+.tableWrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.port {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-md);
+  color: var(--mint);
+}
+.hint {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+.process {
+  max-width: 260px;
+}
+.pid {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+.command {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.muted {
+  color: var(--text-faint);
+  font-size: var(--text-sm);
+}
+.addr {
+  font-size: var(--text-xs);
+}
+.actions {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}

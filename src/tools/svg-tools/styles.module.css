@@ -1,0 +1,27 @@
+.name {
+  width: 140px;
+  height: 30px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.preview {
+  display: grid;
+  place-items: center;
+  height: 96px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  /* checkerboard so transparent areas are visible */
+  background-color: var(--cream);
+  background-image: linear-gradient(45deg, #e8e4d8 25%, transparent 25%),
+    linear-gradient(-45deg, #e8e4d8 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e8e4d8 75%),
+    linear-gradient(-45deg, transparent 75%, #e8e4d8 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+}
+.preview img {
+  max-width: 80%;
+  max-height: 76px;
+}

@@ -1,0 +1,43 @@
+.output {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.password {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  letter-spacing: 0.04em;
+  word-break: break-all;
+}
+
+.meter {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width var(--dur) var(--ease);
+}
+.meter[data-strength="weak"] span {
+  background: var(--coral);
+}
+.meter[data-strength="fair"] span {
+  background: var(--butter);
+}
+.meter[data-strength="strong"] span,
+.meter[data-strength="excellent"] span {
+  background: var(--mint);
+}
+
+.meterLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}

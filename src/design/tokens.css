@@ -1,0 +1,95 @@
+/*
+ * PawsDev design tokens — the single source of truth for colour, type and shape.
+ * Components and tools must use these variables, never raw hex values.
+ */
+
+:root {
+  /* Brand palette */
+  --mint: #88cca6;
+  --mint-strong: #6fbf92;
+  --butter: #f8e192;
+  --aqua: #a8dadc;
+  --coral: #f28b82;
+  --cream: #f7f4ec;
+  --ink: #181a20;
+
+  /* Type */
+  --font-display: "Outfit Variable", "Outfit", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, monospace;
+
+  --text-xs: 11px;
+  --text-sm: 12.5px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 26px;
+
+  /* Shape & spacing */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur: 160ms;
+}
+
+/* Dark (default) */
+:root,
+[data-theme="dark"] {
+  --bg: #181a20;
+  --surface: #1f222a;
+  --surface-2: #272b34;
+  --surface-3: #30343e;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #eceef2;
+  --text-muted: #a0a6b4;
+  --text-faint: #6c7282;
+
+  --primary: var(--mint);
+  --on-primary: var(--ink);
+  --primary-soft: rgba(136, 204, 166, 0.14);
+  --secondary-soft: rgba(248, 225, 146, 0.14);
+  --tertiary-soft: rgba(168, 218, 220, 0.14);
+  --danger: var(--coral);
+  --danger-soft: rgba(242, 139, 130, 0.14);
+
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--mint);
+  --shadow-pop: 0 18px 48px rgba(0, 0, 0, 0.45);
+  --sketch-shadow: none;
+  --sketch-border: 1px solid var(--border);
+}
+
+/* Light — the hand-drawn Sippy Paws look: ink outlines + offset shadows */
+[data-theme="light"] {
+  --bg: #fbf9f3;
+  --surface: #ffffff;
+  --surface-2: #f3f0e6;
+  --surface-3: #e9e5d8;
+  --border: rgba(24, 26, 32, 0.14);
+  --border-strong: var(--ink);
+  --text: var(--ink);
+  --text-muted: #555b68;
+  --text-faint: #8a8f9a;
+
+  --primary: var(--mint);
+  --on-primary: var(--ink);
+  --primary-soft: rgba(136, 204, 166, 0.3);
+  --secondary-soft: rgba(248, 225, 146, 0.45);
+  --tertiary-soft: rgba(168, 218, 220, 0.45);
+  --danger: #e0645a;
+  --danger-soft: rgba(242, 139, 130, 0.25);
+
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink);
+  --shadow-pop: 0 18px 40px rgba(24, 26, 32, 0.12);
+  --sketch-shadow: 3px 3px 0 var(--ink);
+  --sketch-border: 1.5px solid var(--ink);
+}

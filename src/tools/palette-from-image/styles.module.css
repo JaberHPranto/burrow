@@ -1,0 +1,44 @@
+.thumb {
+  width: 72px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.swatches {
+  display: flex;
+  height: 92px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: var(--sketch-border);
+}
+
+.swatch {
+  flex-basis: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-2);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  min-width: 0;
+  transition: flex-grow var(--dur) var(--ease);
+}
+.swatch span {
+  background: rgba(24, 26, 32, 0.72);
+  color: var(--cream);
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.swatch:hover span,
+.swatch:focus-visible span {
+  opacity: 1;
+}
