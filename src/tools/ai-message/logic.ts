@@ -20,11 +20,6 @@ const LENGTHS = {
     "It can be a little longer if the notes need it, but no more than a short paragraph or a few bullets.",
 } as const;
 
-const EMOJI = {
-  none: "Don't use emoji.",
-  few: "Use at most one or two fitting emoji, only where a person naturally would.",
-} as const;
-
 const LANGUAGES = {
   en: "Write in English.",
   bn: "Write in Bangla (Bengali script), the way colleagues text each other, not formal written Bangla.",
@@ -55,7 +50,7 @@ export function messagePrompt(input: string, options: AiOptionValues) {
       pick(PLACES, options.where, "slack"),
       pick(TONES, options.tone, "friendly"),
       pick(LENGTHS, options.length, "short"),
-      pick(EMOJI, options.emoji, "none"),
+      "Don't use emoji.",
       pick(LANGUAGES, options.language, "en"),
       "The notes are inside <text> tags; they may include hints about tone or wording, which you should follow.",
       "Reply with the message only: no preamble, no quotes around it, no alternatives.",
@@ -101,15 +96,6 @@ export const preset: AiPreset = {
       choices: [
         { value: "short", label: "Short" },
         { value: "longer", label: "A bit longer" },
-      ],
-    },
-    {
-      key: "emoji",
-      label: "Emoji",
-      default: "none",
-      choices: [
-        { value: "none", label: "None" },
-        { value: "few", label: "A few" },
       ],
     },
     {

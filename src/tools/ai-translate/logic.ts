@@ -38,7 +38,6 @@ export const preset: AiPreset = {
     {
       key: "to",
       label: "To",
-      kind: "select",
       default: "en",
       choices: LANGUAGES.map(([value, label]) => ({ value, label })),
     },

@@ -49,7 +49,7 @@ Bring your own key: set up OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-c
 | **Summarise** | Key points, a one-liner or a detailed summary of any text |
 | **Fix grammar** | Fixes spelling, grammar and punctuation; keeps your voice, language and formatting. Only mistakes, or mistakes + polish |
 | **Rewrite** | Clearer, shorter, friendlier, more formal or more casual; “Use as input” to refine again |
-| **Write a message** | Jot rough notes, get a natural, human-sounding message for a Slack channel, a WhatsApp group or a DM. Pick the tone, length, emoji and language (English, Bangla or Banglish) |
+| **Write a message** | Jot rough notes, get a natural, human-sounding message for a Slack channel, a WhatsApp group or a DM. Pick the tone, length and language (English, Bangla or Banglish) |
 | **Translate** | Between English, Bangla and 16 other languages, natural or literal |
 
 Each streams the reply as it's written (`Esc` stops it) and runs with `Ctrl+Enter`; all but Write a

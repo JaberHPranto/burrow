@@ -44,8 +44,6 @@ export interface AiOption {
   label: string;
   choices: readonly AiChoice[];
   default: string;
-  /** "chips" (default) for a few short choices, "select" for long lists. */
-  kind?: "chips" | "select";
 }
 
 export type AiOptionValues = Record<string, string>;

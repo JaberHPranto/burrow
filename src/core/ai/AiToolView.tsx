@@ -1,7 +1,7 @@
 /**
- * The shared screen behind every AI tool: input on the left, streamed reply on
- * the right, the preset's options on top. A tool supplies only an `AiPreset`
- * (prompt + options), so adding an AI tool is a few lines.
+ * The shared screen behind every AI tool: a row of option dropdowns, the input
+ * on the left, the streamed reply on the right. A tool supplies only an
+ * `AiPreset` (prompt + options), so adding an AI tool is a few lines.
  */
 import { useApp } from "@/app/store";
 import { handoff } from "@/core/handoff";
@@ -12,25 +12,19 @@ import { usePersistentState } from "@/core/storage/usePersistentState";
 import { cx } from "@/core/utils/cx";
 import {
   Button,
-  Chip,
   CopyButton,
   EmptyState,
   ErrorNote,
+  IconButton,
   Kbd,
   Prose,
   Select,
   TextArea,
 } from "@/design";
-import { ArrowLeftToLine, Bot, RotateCcw, Sparkles, Square } from "lucide-react";
+import { ArrowLeftToLine, RotateCcw, Sparkles, Square } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./AiToolView.module.css";
-import {
-  type AiOption,
-  type AiOptionValues,
-  type AiPreset,
-  normaliseOptions,
-  resolveAiTarget,
-} from "./ai";
+import { type AiOptionValues, type AiPreset, normaliseOptions, resolveAiTarget } from "./ai";
 import { useAiStream } from "./useAiStream";
 
 /** What another tool hands over: `handoff.put("<ai-tool-id>:input", { text, run: true })`. */
@@ -49,7 +43,7 @@ interface Props {
 }
 
 export function AiToolView({ preset, initialInput, autoRun }: Props) {
-  useWindowSize(960, 620);
+  useWindowSize(960, 600);
   const aiSettings = useSettings((s) => s.settings.ai);
   const settingsLoaded = useSettings((s) => s.loaded);
   const openTool = useApp((s) => s.openTool);
@@ -58,7 +52,6 @@ export function AiToolView({ preset, initialInput, autoRun }: Props) {
   // Input: hand-off from another tool > launcher suggestion > clipboard.
   const [incoming] = useState(() => handoff.take<AiHandoff>(`${preset.id}:input`));
   const [input, setInput] = useState(incoming?.text ?? initialInput ?? "");
-  const [fromClipboard, setFromClipboard] = useState(false);
   const [storedOptions, setStoredOptions] = usePersistentState<AiOptionValues>(
     preset.id,
     "options",
@@ -77,10 +70,7 @@ export function AiToolView({ preset, initialInput, autoRun }: Props) {
       .readText()
       .then((text) => {
         const t = text?.trim() ?? "";
-        if (alive && t && t.length <= MAX_CLIPBOARD_PREFILL) {
-          setInput(t);
-          setFromClipboard(true);
-        }
+        if (alive && t && t.length <= MAX_CLIPBOARD_PREFILL) setInput(t);
       })
       .catch(() => {});
     return () => {
@@ -105,7 +95,7 @@ export function AiToolView({ preset, initialInput, autoRun }: Props) {
     if (target.ok) run();
   }, [settingsLoaded, incoming, autoRun, input, target, run]);
 
-  // Ctrl+Enter runs from anywhere in the tool (the text box, after clicking an option…).
+  // Ctrl+Enter runs from anywhere in the tool (the text box, after picking an option…).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || !(e.ctrlKey || e.metaKey)) return;
@@ -128,187 +118,133 @@ export function AiToolView({ preset, initialInput, autoRun }: Props) {
     return () => window.removeEventListener("keydown", onKey, true);
   }, [ai]);
 
-  const setOption = (key: string, value: string) => setStoredOptions({ ...options, [key]: value });
   const streaming = ai.status === "streaming";
   const hasReply = ai.text.length > 0;
+  const finished = ai.status === "done" || ai.status === "stopped" || ai.status === "error";
+
+  if (!target.ok) {
+    return (
+      <div className={styles.setup}>
+        <EmptyState
+          title={target.reason === "no-provider" ? "Connect an AI provider" : "Pick a model"}
+          mood="curious"
+        >
+          <p>
+            {target.reason === "no-provider"
+              ? "Add an API key (OpenAI, Anthropic, OpenRouter) or point Burrow at Ollama, then make it the default."
+              : `Choose a model for ${target.providerName}: “Test connection” lists them.`}
+          </p>
+          <Button variant="primary" onClick={() => openTool("settings", { input: "ai" })}>
+            Open AI settings
+          </Button>
+        </EmptyState>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.layout}>
       {preset.options.length > 0 && (
         <div className={styles.options}>
           {preset.options.map((o) => (
-            <OptionControl
+            <Select
               key={o.key}
-              option={o}
+              aria-label={o.label}
+              title={o.label}
+              className={styles.option}
               value={options[o.key] ?? o.default}
-              onChange={setOption}
-            />
+              onChange={(e) => setStoredOptions({ ...options, [o.key]: e.target.value })}
+            >
+              {o.choices.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </Select>
           ))}
         </div>
       )}
 
       <div className={styles.panes}>
         <section className={styles.pane}>
-          <header className={styles.paneHead}>
-            <span className={styles.paneLabel}>{preset.inputLabel}</span>
-            {fromClipboard && <span className={styles.note}>from your clipboard</span>}
-            <span className="b-grow" />
-            <span className={styles.note}>{input.length.toLocaleString()} chars</span>
-          </header>
           <TextArea
             ref={inputRef}
+            aria-label={preset.inputLabel}
             className={styles.input}
             value={input}
             placeholder={preset.placeholder}
             spellCheck={false}
-            onChange={(e) => {
-              setInput(e.target.value);
-              setFromClipboard(false);
-            }}
+            onChange={(e) => setInput(e.target.value)}
             autoFocus
           />
-          <div className={styles.actions}>
+          <div className={styles.bar}>
             {streaming ? (
               <Button variant="secondary" icon={Square} onClick={ai.stop}>
-                Stop <Kbd>Esc</Kbd>
+                Stop
               </Button>
             ) : (
               <Button
                 variant="primary"
                 icon={Sparkles}
                 onClick={run}
-                disabled={!target.ok || !input.trim()}
+                disabled={!input.trim()}
+                title="Ctrl+Enter"
               >
-                {preset.action} <Kbd>Ctrl</Kbd>
-                <Kbd>↵</Kbd>
+                {preset.action}
               </Button>
             )}
-            <span className="b-grow" />
-            {target.ok && (
-              <button
-                type="button"
-                className={styles.model}
-                title="Change in Settings → AI providers"
-                onClick={() => openTool("settings", { input: "ai" })}
-              >
-                <Bot aria-hidden /> {target.providerName} · {target.model}
-              </button>
-            )}
+            <button
+              type="button"
+              className={styles.model}
+              title={`${target.providerName} · change in Settings → AI providers`}
+              onClick={() => openTool("settings", { input: "ai" })}
+            >
+              {target.model}
+            </button>
           </div>
         </section>
 
         <section
-          className={cx(styles.pane, styles.outputPane)}
+          className={cx(styles.pane, styles.output)}
           aria-live="polite"
           aria-busy={streaming}
         >
-          {!target.ok ? (
-            <EmptyState
-              title={target.reason === "no-provider" ? "Connect an AI provider" : "Pick a model"}
-              mood="curious"
-            >
-              <div className={styles.setup}>
-                <p>
-                  {target.reason === "no-provider"
-                    ? "Add an API key (OpenAI, Anthropic, OpenRouter) or point Burrow at Ollama, then make it the default."
-                    : `Choose a model for ${target.providerName}: “Test connection” lists them.`}
-                </p>
-                <Button variant="primary" onClick={() => openTool("settings", { input: "ai" })}>
-                  Open AI settings
-                </Button>
-              </div>
-            </EmptyState>
-          ) : (
-            <>
-              <div className={styles.output}>
-                {!hasReply && ai.status === "idle" && (
-                  <p className={styles.placeholder}>
-                    The result appears here. Press <Kbd>Ctrl</Kbd>+<Kbd>↵</Kbd> to{" "}
-                    {preset.action.toLowerCase()}.
-                  </p>
-                )}
-                {!hasReply && streaming && <p className={styles.placeholder}>Thinking…</p>}
-                {hasReply &&
-                  (preset.output === "markdown" ? (
-                    <Prose markdown={ai.text} className={cx(streaming && styles.streaming)} />
-                  ) : (
-                    <pre className={cx(styles.plain, "selectable", streaming && styles.streaming)}>
-                      {ai.text}
-                    </pre>
-                  ))}
-                {ai.status === "error" && ai.error && <ErrorNote>{ai.error}</ErrorNote>}
-                {ai.status === "stopped" && <p className={styles.note}>Stopped.</p>}
-                {ai.status === "done" && ai.stopReason && CUT_OFF.has(ai.stopReason) && (
-                  <p className={styles.note}>The reply hit the length limit and was cut off.</p>
-                )}
-              </div>
-              <div className={styles.actions}>
-                <CopyButton value={ai.text} size="sm" disabled={!hasReply || streaming} />
-                {preset.reusable && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    icon={ArrowLeftToLine}
-                    disabled={!hasReply || streaming}
-                    onClick={() => {
-                      setInput(ai.text);
-                      setFromClipboard(false);
-                    }}
-                  >
-                    Use as input
-                  </Button>
-                )}
-                <span className="b-grow" />
-                {(ai.status === "done" || ai.status === "stopped" || ai.status === "error") && (
-                  <Button size="sm" variant="ghost" icon={RotateCcw} onClick={run}>
-                    Retry
-                  </Button>
-                )}
-              </div>
-            </>
+          <div className={styles.reply}>
+            {!hasReply && ai.status === "idle" && (
+              <p className={styles.hint}>
+                <Kbd>Ctrl</Kbd> + <Kbd>↵</Kbd> to {preset.action.toLowerCase()}
+              </p>
+            )}
+            {!hasReply && streaming && <p className={styles.hint}>Thinking…</p>}
+            {hasReply &&
+              (preset.output === "markdown" ? (
+                <Prose markdown={ai.text} className={cx(streaming && styles.streaming)} />
+              ) : (
+                <pre className={cx(styles.plain, "selectable", streaming && styles.streaming)}>
+                  {ai.text}
+                </pre>
+              ))}
+            {ai.status === "error" && ai.error && <ErrorNote>{ai.error}</ErrorNote>}
+            {ai.status === "done" && ai.stopReason && CUT_OFF.has(ai.stopReason) && (
+              <p className={styles.note}>The reply hit the length limit and was cut off.</p>
+            )}
+          </div>
+          {(hasReply || ai.status === "error") && !streaming && (
+            <div className={styles.bar}>
+              {hasReply && <CopyButton value={ai.text} size="sm" />}
+              <span className="b-grow" />
+              {hasReply && preset.reusable && (
+                <IconButton
+                  icon={ArrowLeftToLine}
+                  label="Use as input"
+                  onClick={() => setInput(ai.text)}
+                />
+              )}
+              {finished && <IconButton icon={RotateCcw} label="Try again" onClick={run} />}
+            </div>
           )}
         </section>
       </div>
     </div>
-  );
-}
-
-function OptionControl({
-  option,
-  value,
-  onChange,
-}: { option: AiOption; value: string; onChange: (key: string, value: string) => void }) {
-  if (option.kind === "select") {
-    return (
-      <div className={styles.option}>
-        <span className={styles.optionLabel}>{option.label}</span>
-        <Select
-          aria-label={option.label}
-          className={styles.select}
-          value={value}
-          onChange={(e) => onChange(option.key, e.target.value)}
-        >
-          {option.choices.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </Select>
-      </div>
-    );
-  }
-  return (
-    <fieldset className={styles.option} aria-label={option.label}>
-      <span className={styles.optionLabel}>{option.label}</span>
-      {option.choices.map((c) => (
-        <Chip
-          key={c.value}
-          active={c.value === value}
-          onClick={() => onChange(option.key, c.value)}
-        >
-          {c.label}
-        </Chip>
-      ))}
-    </fieldset>
   );
 }

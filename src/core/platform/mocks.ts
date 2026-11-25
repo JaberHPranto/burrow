@@ -206,11 +206,9 @@ export async function mockAiStream(
     .slice(0, 12)
     .join(" ");
   const reply = [
-    "**Preview reply** (the browser preview has no AI; the desktop app calls",
-    `${request.provider} · ${request.model}).\n\n`,
-    `- It starts with: “${preview}…”\n`,
-    "- Replies stream in **as they're written**, and `Stop` cancels mid-way.\n",
-    '- Markdown renders: lists, `code`, and\n\n```ts\nconst burrow = "cozy";\n```\n',
+    `This is a preview reply: the browser preview has no AI, the desktop app sends this to ${request.provider} (${request.model}).`,
+    `Your text starts with “${preview}…”.`,
+    "Replies stream in as they're written, and Stop cancels mid-way.",
   ].join(" ");
   const words = reply.split(/(?<=\s)/);
   let i = 0;

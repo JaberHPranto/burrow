@@ -5,12 +5,11 @@ import { messagePrompt, preset } from "./logic";
 const defaults = normaliseOptions(preset, undefined);
 
 describe("message preset", () => {
-  it("defaults to a short, friendly Slack message in English without emoji", () => {
+  it("defaults to a short, friendly Slack message in English", () => {
     expect(defaults).toEqual({
       where: "slack",
       tone: "friendly",
       length: "short",
-      emoji: "none",
       language: "en",
     });
     const { system } = messagePrompt("deploy moved to friday", defaults);
@@ -32,9 +31,6 @@ describe("message preset", () => {
       "Bangla typed in English letters",
     );
     expect(messagePrompt("x", { ...defaults, language: "bn" }).system).toContain("Bengali script");
-    expect(messagePrompt("x", { ...defaults, emoji: "few" }).system).toContain(
-      "one or two fitting emoji",
-    );
   });
 
   it("keeps it human and faithful to the notes", () => {
@@ -50,7 +46,6 @@ describe("message preset", () => {
       where: "teams",
       tone: "?",
       length: "?",
-      emoji: "?",
       language: "?",
     });
     expect(system).toContain("Slack channel");
