@@ -3,7 +3,7 @@
  * through here so tools never touch `invoke` or command names directly.
  * In a dev browser each command returns mock data (see ./mocks.ts).
  */
-import { mocks } from "./mocks";
+import { mockAiStream, mocks } from "./mocks";
 import { isTauri } from "./runtime";
 
 export interface ListeningPort {
@@ -39,6 +39,31 @@ export interface HotkeysState {
 }
 
 export type AiProviderId = "openai" | "anthropic" | "openrouter" | "ollama" | "custom";
+
+export interface AiMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+/** Mirrors `ChatRequest` in `src-tauri/src/commands/ai_stream.rs`. */
+export interface AiChatRequest {
+  /** `[A-Za-z0-9-]`, ≤ 64 chars; pass it to `aiCancel` to stop. */
+  id: string;
+  provider: AiProviderId;
+  model: string;
+  /** null = the provider's default. */
+  baseUrl: string | null;
+  system: string;
+  messages: AiMessage[];
+  maxTokens?: number;
+  temperature?: number;
+}
+
+/** Streamed back for one request; ends with exactly one `done` or `error`. */
+export type AiStreamEvent =
+  | { type: "delta"; text: string }
+  | { type: "done"; stopReason: string | null }
+  | { type: "error"; message: string };
 
 export interface AiTestResult {
   ok: boolean;
@@ -79,6 +104,18 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
 }
 
 /** Send raw bytes as the request body (no JSON encoding) — for images. */
+/**
+ * Start a streaming AI request. Resolves once it has started; events arrive
+ * on `onEvent`. Keys stay in Rust: the webview never sees them.
+ */
+async function aiStream(request: AiChatRequest, onEvent: (event: AiStreamEvent) => void) {
+  if (!isTauri()) return mockAiStream(request, onEvent);
+  const { invoke, Channel } = await import("@tauri-apps/api/core");
+  const channel = new Channel<AiStreamEvent>();
+  channel.onmessage = onEvent;
+  await invoke<void>("ai_stream", { request, onEvent: channel });
+}
+
 async function callRaw<T>(
   command: string,
   bytes: Uint8Array,
@@ -118,6 +155,8 @@ export const commands = {
     }),
   getHotkeys: () => call<HotkeysState>("get_hotkeys"),
   setHotkey: (id: string, binding: string | null) => call<void>("set_hotkey", { id, binding }),
+  aiStream,
+  aiCancel: (id: string) => call<void>("ai_cancel", { id }),
   aiKeyStatus: () => call<Record<AiProviderId, boolean>>("ai_key_status"),
   aiSetKey: (provider: AiProviderId, key: string) => call<void>("ai_set_key", { provider, key }),
   aiDeleteKey: (provider: AiProviderId) => call<void>("ai_delete_key", { provider }),

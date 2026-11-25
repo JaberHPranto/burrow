@@ -1,6 +1,8 @@
 /** Fake command responses for browser-only UI development. Never used in the app. */
 import type {
+  AiChatRequest,
   AiProviderId,
+  AiStreamEvent,
   ClipboardBridgeStatus,
   HotkeysState,
   ListeningPort,
@@ -88,6 +90,10 @@ const hotkeys: HotkeysState = {
     { id: "color", name: "Burrow: pick colour", binding: "<Control><Alt>c" },
     { id: "clipboard", name: "Burrow: clipboard history", binding: null },
     { id: "emoji", name: "Burrow: emoji picker", binding: null },
+    { id: "ai-grammar", name: "Burrow: fix grammar of clipboard", binding: null },
+    { id: "ai-summarize", name: "Burrow: summarise clipboard", binding: null },
+    { id: "ai-translate", name: "Burrow: translate clipboard", binding: null },
+    { id: "ai-explain", name: "Burrow: explain clipboard (code or error)", binding: null },
     { id: "tasks", name: "Burrow: tasks", binding: null },
     { id: "notes", name: "Burrow: quick notes", binding: "<Control><Alt>n" },
     { id: "settings", name: "Burrow: settings", binding: null },
@@ -126,6 +132,9 @@ const handlers: Record<string, Handler> = {
   set_hotkey: (args) => {
     const hk = hotkeys.hotkeys.find((h) => h.id === args?.id);
     if (hk) hk.binding = (args?.binding as string | null) ?? null;
+  },
+  ai_cancel: (args) => {
+    cancelledStreams.add(String(args?.id));
   },
   ai_key_status: () => ({ ...aiKeys }),
   ai_set_key: (args) => {
@@ -166,6 +175,57 @@ const handlers: Record<string, Handler> = {
   save_png: (args) =>
     `/home/you/Pictures/Screenshots/${String(args?.["x-file-name"] ?? "burrow.png")}`,
 };
+
+const cancelledStreams = new Set<string>();
+
+/**
+ * Browser preview of an AI reply: streams a canned answer word by word so the
+ * streaming UI (Stop, partial markdown, copy) can be worked on without a key.
+ */
+export async function mockAiStream(
+  request: AiChatRequest,
+  onEvent: (event: AiStreamEvent) => void,
+): Promise<void> {
+  const input = request.messages.at(-1)?.content ?? "";
+  if (input.includes("MOCK_ERROR")) {
+    setTimeout(
+      () =>
+        onEvent({
+          type: "error",
+          message:
+            "Anthropic answered HTTP 401: invalid x-api-key. Check the API key in Settings → AI providers.",
+        }),
+      300,
+    );
+    return;
+  }
+  const preview = input
+    .replace(/<\/?text>/g, "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 12)
+    .join(" ");
+  const reply = [
+    "**Preview reply** (the browser preview has no AI; the desktop app calls",
+    `${request.provider} · ${request.model}).\n\n`,
+    `- It starts with: “${preview}…”\n`,
+    "- Replies stream in **as they're written**, and `Stop` cancels mid-way.\n",
+    '- Markdown renders: lists, `code`, and\n\n```ts\nconst burrow = "cozy";\n```\n',
+  ].join(" ");
+  const words = reply.split(/(?<=\s)/);
+  let i = 0;
+  const tick = () => {
+    if (cancelledStreams.delete(request.id)) return;
+    if (i >= words.length) {
+      onEvent({ type: "done", stopReason: "end_turn" });
+      return;
+    }
+    onEvent({ type: "delta", text: words.slice(i, i + 2).join("") });
+    i += 2;
+    setTimeout(tick, 45);
+  };
+  setTimeout(tick, 250);
+}
 
 export const mocks = {
   async handle<T>(command: string, args?: Record<string, unknown>): Promise<T> {

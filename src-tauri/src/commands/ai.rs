@@ -30,7 +30,7 @@ fn entry(provider: &str) -> keyring::Result<keyring::Entry> {
     keyring::Entry::new(SERVICE, &format!("ai:{provider}"))
 }
 
-fn read_key(provider: &'static str) -> Result<Option<String>> {
+pub(super) fn read_key(provider: &'static str) -> Result<Option<String>> {
     off_runtime(move || match entry(provider).and_then(|e| e.get_password()) {
         Ok(k) => Ok(Some(k)),
         Err(keyring::Error::NoEntry) => Ok(None),
@@ -38,7 +38,7 @@ fn read_key(provider: &'static str) -> Result<Option<String>> {
     })?
 }
 
-fn static_provider(provider: &str) -> Result<&'static str> {
+pub(super) fn static_provider(provider: &str) -> Result<&'static str> {
     PROVIDERS
         .iter()
         .copied()
@@ -76,8 +76,8 @@ pub async fn ai_delete_key(provider: String) -> Result<()> {
     })?
 }
 
-#[derive(Debug, PartialEq, Eq)]
-enum Auth {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum Auth {
     Bearer,
     AnthropicKey,
     None,
@@ -89,25 +89,43 @@ fn valid_base_url(url: &str) -> bool {
         && !url.chars().any(|c| c.is_whitespace() || c.is_control())
 }
 
-/// Where to list models for a provider, and how to authenticate.
-fn models_endpoint(provider: &str, base_url: Option<&str>) -> Result<(String, Auth)> {
+/// The provider's API base URL: the user's override (validated) or the default.
+/// OpenAI-style bases include the version path (`…/v1`); Anthropic and Ollama don't.
+pub(super) fn provider_base(provider: &str, base_url: Option<&str>) -> Result<String> {
     let base = base_url.map(|b| b.trim().trim_end_matches('/')).filter(|b| !b.is_empty());
     if let Some(b) = base {
         if !valid_base_url(b) {
             return Err(Error::Message("Base URL must start with http:// or https://".into()));
         }
     }
-    Ok(match provider {
-        "openai" => (format!("{}/models", base.unwrap_or("https://api.openai.com/v1")), Auth::Bearer),
-        "openrouter" => (format!("{}/models", base.unwrap_or("https://openrouter.ai/api/v1")), Auth::Bearer),
-        "anthropic" => (format!("{}/v1/models", base.unwrap_or("https://api.anthropic.com")), Auth::AnthropicKey),
-        "ollama" => (format!("{}/api/tags", base.unwrap_or("http://localhost:11434")), Auth::None),
-        "custom" => (
-            format!("{}/models", base.ok_or_else(|| Error::Message("Set a base URL first".into()))?),
-            Auth::Bearer,
-        ),
+    let default = match provider {
+        "openai" => "https://api.openai.com/v1",
+        "openrouter" => "https://openrouter.ai/api/v1",
+        "anthropic" => "https://api.anthropic.com",
+        "ollama" => "http://localhost:11434",
+        "custom" => return base.map(String::from).ok_or_else(|| Error::Message("Set a base URL first".into())),
         other => return Err(Error::Message(format!("Unknown provider \"{other}\""))),
-    })
+    };
+    Ok(base.unwrap_or(default).to_owned())
+}
+
+pub(super) fn auth_for(provider: &str) -> Auth {
+    match provider {
+        "anthropic" => Auth::AnthropicKey,
+        "ollama" => Auth::None,
+        _ => Auth::Bearer,
+    }
+}
+
+/// Where to list models for a provider, and how to authenticate.
+fn models_endpoint(provider: &str, base_url: Option<&str>) -> Result<(String, Auth)> {
+    let base = provider_base(provider, base_url)?;
+    let path = match provider {
+        "anthropic" => "/v1/models",
+        "ollama" => "/api/tags",
+        _ => "/models",
+    };
+    Ok((format!("{base}{path}"), auth_for(provider)))
 }
 
 /// Model ids from OpenAI/Anthropic (`data[].id`) or Ollama (`models[].name`).

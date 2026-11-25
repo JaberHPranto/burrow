@@ -33,6 +33,7 @@ pub fn run() {
         .manage(window::PendingTool::default())
         .manage(window::BlurGuard::default())
         .manage(window::WindowModeState::default())
+        .manage(std::sync::Arc::new(commands::ai_stream::AiTasks::default()))
         .invoke_handler(tauri::generate_handler![
             commands::ports::list_listening_ports,
             commands::ports::kill_process,
@@ -53,6 +54,8 @@ pub fn run() {
             commands::ai::ai_set_key,
             commands::ai::ai_delete_key,
             commands::ai::ai_test,
+            commands::ai_stream::ai_stream,
+            commands::ai_stream::ai_cancel,
             commands::clipboard::clipboard_bridge_status,
             commands::clipboard::install_clipboard_extension,
             commands::clipboard::uninstall_clipboard_extension,

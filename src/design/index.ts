@@ -7,6 +7,7 @@ export { ColorInput } from "./components/ColorInput";
 export { CopyButton } from "./components/CopyButton";
 export { EmptyState } from "./components/EmptyState";
 export { FilePicker } from "./components/FilePicker";
+export { Prose } from "./components/Prose";
 export { Row, Split, Stack } from "./components/Layout";
 export { Toaster, toast } from "./components/Toast";
 export { Bunny, type BunnyMood } from "./mascot/Bunny";

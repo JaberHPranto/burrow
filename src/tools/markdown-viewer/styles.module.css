@@ -16,7 +16,7 @@
   height: 100%;
 }
 
-.prose {
+.rendered {
   overflow: auto;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
@@ -24,60 +24,4 @@
   border: 1px solid var(--border);
   font-size: var(--text-md);
   line-height: 1.7;
-}
-.prose :global(h1),
-.prose :global(h2),
-.prose :global(h3) {
-  font-family: var(--font-display);
-  margin: 1.1em 0 0.4em;
-  line-height: 1.25;
-}
-.prose :global(h1) {
-  font-size: var(--text-2xl);
-}
-.prose :global(h2) {
-  font-size: var(--text-xl);
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border);
-}
-.prose :global(a) {
-  color: var(--mint);
-}
-.prose :global(code) {
-  font-size: 0.88em;
-  padding: 1px 5px;
-  border-radius: 4px;
-  background: var(--surface-2);
-}
-.prose :global(pre) {
-  padding: var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  overflow: auto;
-}
-.prose :global(pre code) {
-  background: none;
-  padding: 0;
-}
-.prose :global(blockquote) {
-  margin: 0;
-  padding-left: var(--space-3);
-  border-left: 3px solid var(--butter);
-  color: var(--text-muted);
-}
-.prose :global(table) {
-  border-collapse: collapse;
-}
-.prose :global(th),
-.prose :global(td) {
-  border: 1px solid var(--border);
-  padding: 4px 10px;
-}
-.prose :global(img) {
-  max-width: 100%;
-}
-.prose :global(hr) {
-  border: none;
-  border-top: 1px dashed var(--border-strong);
 }

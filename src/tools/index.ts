@@ -5,6 +5,11 @@
  */
 import type { ToolDefinition } from "@/core/tools/types";
 import settings from "@/features/settings/definition";
+import aiExplain from "./ai-explain";
+import aiGrammar from "./ai-grammar";
+import aiRewrite from "./ai-rewrite";
+import aiSummarize from "./ai-summarize";
+import aiTranslate from "./ai-translate";
 import clipboardHistory from "./clipboard-history";
 import colorPicker from "./color-picker";
 import emojiPicker from "./emoji-picker";
@@ -46,6 +51,12 @@ export const tools: readonly ToolDefinition[] = [
   // system
   portInspector,
   envDiff,
+  // ai
+  aiSummarize,
+  aiGrammar,
+  aiRewrite,
+  aiExplain,
+  aiTranslate,
   // app
   settings,
 ];

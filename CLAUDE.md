@@ -35,6 +35,7 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
 | `src/core/handoff.ts` | Pass data between tools | Key = `"<receiving-tool>:<what>"`, consumed once with `take`. |
 | `src/core/platform/window.ts` | `useWindowSize(w, h, active)`, `overlayWindow` | Tools that need room (editor, schema mock) grow the window; size is restored on unmount. `overlayWindow` enters/exits fullscreen for region selection. |
 | `src/core/deps/` | Optional system packages: catalogue, `reportFor` badge logic, status store | When a tool uses a system package, add it to `catalog.ts` + `commands/deps.rs` and list it in the tool's `requires`. Update the README dependency table. |
+| `src/core/ai/` | AI tools' shared pieces: `resolveAiTarget`, `AiPreset`, `useAiStream`, `AiToolView` | An AI tool is a preset: `logic.ts` exports `preset: AiPreset` (prompt via `build`, options, output format) + a one-line View rendering `<AiToolView preset>`. Wrap user text with `asMaterial()` and end system prompts with `MATERIAL_RULES` (prompt-injection guard). Other tools hand text over with `handoff.put("<ai-tool>:input", { text, run })`. |
 | `src/core/capture/` | Region selection overlay (`useSnip`), crop/decode helpers | Shared by Screenshot and OCR. Geometry is pure and tested. |
 | `src/design/` | Design system | Tools import UI only from `@/design`. No raw colours: use tokens. |
 | `src/features/` | Launcher, ToolHost, Settings | App chrome, not tools. Settings is registered as tool `settings` (category `app`) so it's searchable and opens via `--tool settings`; its input picks a section (`"hotkeys"`, `"ai"`…). Add a section: a component in `features/settings/sections/` + one entry in `SECTIONS`. |
@@ -87,7 +88,7 @@ Use `src/tools/json-formatter/` as the reference implementation.
 
 ## Security
 
-- Treat clipboard, files and pasted content as untrusted. Sanitise HTML (`DOMPurify`, as in `markdown-viewer/render.ts`); render user SVG only via `<img src="data:…">`, never inline.
+- Treat clipboard, files and pasted content as untrusted. Sanitise HTML (`DOMPurify`, as in `core/markdown/render.ts`); render user SVG only via `<img src="data:…">`, never inline.
 - Keep the CSP in `tauri.conf.json` strict. Don't add remote origins without a reason.
 - Secrets (future AI keys) go in the system keyring, never in `burrow.json` or logs.
 - Rust commands receive input from the webview, so validate it (see `cli.rs` id validation, `kill_process` pid check,
@@ -118,6 +119,11 @@ Use `src/tools/json-formatter/` as the reference implementation.
   never the command line. Keep `ACTIONS` ids in sync with the Settings UI and tool ids.
 - **AI keys:** `commands/ai.rs` stores keys in the Secret Service keyring (service `dev.burrow.app`, user `ai:<provider>`).
   Keys go in, never come back out to the webview. Keyring calls run on a plain thread (`off_runtime`).
+- **AI requests:** `commands/ai_stream.rs` makes them from Rust (`ai_stream` + a Tauri `Channel` of delta/done/error
+  events, `ai_cancel` by request id). Two wire formats: OpenAI-compatible `/chat/completions` (OpenAI, OpenRouter,
+  Ollama `/v1`, custom) and Anthropic `/v1/messages`. The webview picks provider/model/prompt, never the URL beyond the
+  validated base. Don't send `max_tokens`/`temperature` to OpenAI-style APIs unless asked (newer models reject them).
+  The browser mock (`mockAiStream`) streams a canned reply; include `MOCK_ERROR` in the input to see the error path.
 - **Launcher window:** frameless, skip taskbar, hides on blur in release builds only. Drag regions use `data-tauri-drag-region`.
 - **Window modes:** `settings.windowMode` = launcher (hide on blur) | pinned (stay open, on top) | normal (regular window,
   in Alt+Tab). `set_window_mode` → `window::apply_mode`. Wayland ignores an app's always-on-top, so pinning goes through
@@ -144,4 +150,6 @@ draw it in `render.ts`, add a tool button in `View.tsx`.
 - Phase 2 ✅: screenshot + annotation editor, OCR, colour picker, tasks, schema mock
 - Phase 3 ✅: Settings, clipboard history (Shell extension), emoji picker (emojibase-data, lazy chunk;
   `support.ts` hides emoji newer than the system font can draw)
-- Phase 4: AI tools with BYOK (OpenAI-compatible client + Anthropic; keys in keyring; streaming UI)
+- Phase 4 ✅: AI tools with BYOK — summarise, fix grammar, rewrite, explain, translate (presets over `core/ai`),
+  streaming from Rust, OCR → AI hand-off, AI hotkeys that run on the clipboard
+- Next: more AI presets (commit message, regex, SQL), multi-turn chat

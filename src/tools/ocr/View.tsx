@@ -1,3 +1,5 @@
+import { useApp } from "@/app/store";
+import type { AiHandoff } from "@/core/ai/AiToolView";
 import { useSnip } from "@/core/capture/useSnip";
 import { useDeps } from "@/core/deps/store";
 import { handoff } from "@/core/handoff";
@@ -7,6 +9,7 @@ import { usePersistentState } from "@/core/storage/usePersistentState";
 import type { ToolProps } from "@/core/tools/types";
 import {
   Button,
+  Chip,
   CopyButton,
   EmptyState,
   ErrorNote,
@@ -20,10 +23,38 @@ import {
   Tag,
   TextArea,
 } from "@/design";
-import { Camera } from "lucide-react";
+import { Camera, Languages, MessageCircleQuestion, ScrollText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type Layout, cleanOcrText, languageOptions, wordCount } from "./logic";
 import styles from "./styles.module.css";
+
+/** OCR → AI: hand the text to an AI tool and run it straight away. */
+const AI_ACTIONS = [
+  { tool: "ai-summarize", label: "Summarise", icon: ScrollText },
+  { tool: "ai-translate", label: "Translate", icon: Languages },
+  { tool: "ai-explain", label: "Explain", icon: MessageCircleQuestion },
+] as const;
+
+function AskAi({ text }: { text: string }) {
+  const openTool = useApp((s) => s.openTool);
+  return (
+    <Row gap={1}>
+      <span className={styles.askLabel}>Ask AI</span>
+      {AI_ACTIONS.map(({ tool, label, icon }) => (
+        <Chip
+          key={tool}
+          icon={icon}
+          onClick={() => {
+            handoff.put(`${tool}:input`, { text, run: true } satisfies AiHandoff);
+            openTool(tool);
+          }}
+        >
+          {label}
+        </Chip>
+      ))}
+    </Row>
+  );
+}
 
 // "Keep lines" first and default: dev content (code, logs, terminals) is line-based.
 const LAYOUTS = [
@@ -197,6 +228,7 @@ export default function Ocr({ autoRun }: ToolProps) {
               }
               onChange={(e) => setText(e.target.value)}
             />
+            {text && busy !== "ocr" && <AskAi text={text} />}
           </Stack>
         </div>
       )}

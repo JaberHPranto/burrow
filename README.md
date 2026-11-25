@@ -39,6 +39,24 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 | **Quick notes** | Scratchpad that saves as you type; pin and search |
 | **Markdown viewer** | Split edit/preview, open `.md` files, copy as HTML |
 
+### AI
+
+Bring your own key: set up OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-compatible API in
+[Settings → AI providers](#settings) and make one the default.
+
+| Tool | What it does |
+|---|---|
+| **Summarise** | Key points, a one-liner or a detailed summary of any text |
+| **Fix grammar** | Fixes spelling, grammar and punctuation; keeps your voice, language and formatting. Only mistakes, or mistakes + polish |
+| **Rewrite** | Clearer, shorter, friendlier, more formal or more casual; “Use as input” to refine again |
+| **Explain code or error** | Paste a stack trace, compiler error, log, regex or function: what it means and how to fix it |
+| **Translate** | Between English, Bangla and 16 other languages, natural or literal |
+
+Each opens with what's on your clipboard, streams the reply as it's written (`Esc` stops it), and runs
+with `Ctrl+Enter`. After OCR, **Ask AI** sends the text straight to Summarise, Translate or Explain.
+Settings → Hotkeys can bind “fix grammar / summarise / translate / explain the clipboard” to one key.
+Requests go from Burrow directly to your provider; API keys stay in the system keyring and never reach the UI.
+
 ### Developer tools
 
 | Tool | What it does |
@@ -55,7 +73,9 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 **Clipboard suggestions.** When the launcher opens, Burrow looks at what you've copied and puts the
 matching tool on top: JSON → JSON formatter, JSON Schema / OpenAPI → Schema mock, a colour (`#hex`,
 `rgb()`, `hsl()`) → Colour picker, `<svg>` → SVG optimizer, `KEY=value` lines → .env diff,
-Markdown → Markdown viewer. Turn it off in Settings → General.
+Markdown → Markdown viewer, a stack trace or error → Explain, text in another script (Bangla…) →
+Translate, a long article → Summarise. AI suggestions appear once a provider is set up. Turn suggestions
+off in Settings → General.
 
 **Tasks quick add:** `!high` `!med` `!low` (or `!1` `!2` `!3`, `!!!`), `#tag`, and a date:
 `today`, `tomorrow`/`tmr`, a weekday (`fri`), `next week`, `in 3 days`, `in 2w`, `dec 5`, `2026-12-01`.
@@ -101,7 +121,8 @@ If you installed the extension before pinning existed, Settings offers an **Upda
 | **1 ✅** | Launcher, clipboard suggestions, core dev tools | No special permissions needed |
 | **2 ✅** | Screenshot + annotation editor, OCR, colour picker, tasks, schema mock | Silent capture via `gnome-screenshot` (portal fallback); OCR via local Tesseract |
 | **3 ✅** | Settings, clipboard history, emoji picker | Clipboard history uses a small companion Shell extension |
-| **4** | AI: summarise, grammar, rewrite, explain code/error, OCR → AI | Bring your own key; provider setup and keyring storage are already in Settings |
+| **4 ✅** | AI: summarise, fix grammar, rewrite, explain code/error, translate, OCR → AI | Bring your own key (OpenAI, Anthropic, OpenRouter, Ollama, OpenAI-compatible); streaming replies |
+| **Next** | More AI tools (commit messages, regex, SQL), a chat with history | Each AI tool is a small preset over the shared view |
 
 ---
 
@@ -209,6 +230,8 @@ src/
 ├── core/
 │   ├── tools/           Tool contract (types.ts) + registry (search, lookup)
 │   ├── clipboard/       Clipboard → tool suggestions; clipboard history (logic + store)
+│   ├── ai/              Provider resolution, presets, useAiStream, AiToolView (shared by AI tools)
+│   ├── markdown/        Markdown → sanitised HTML (used by <Prose>)
 │   ├── settings/        Settings shape + store, theme resolution, hotkey accelerators
 │   ├── platform/        The ONLY place that talks to Tauri (commands, clipboard, events, mocks)
 │   ├── storage/         Persistent key-value store + usePersistentState
@@ -228,7 +251,8 @@ src-tauri/src/
 ├── tray.rs              Tray menu
 ├── clipboard_bridge.rs  D-Bus service the Shell extension pushes copies to
 └── commands/            capture (gnome-screenshot / portal, colour), ocr (tesseract), files (save dialogs),
-                         ports (/proc), hotkeys (gsettings), ai (keyring + test), clipboard (extension), app
+                         ports (/proc), hotkeys (gsettings), ai (keyring + test), ai_stream (streaming
+                         chat for OpenAI-compatible + Anthropic), clipboard (extension), app
 src-tauri/extension/     The GNOME Shell extension (legacy 42–44 and ESM 45+ variants)
 ```
 

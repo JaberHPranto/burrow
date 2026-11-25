@@ -1,0 +1,157 @@
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ---------- Options ---------- */
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.optionLabel {
+  margin-right: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.select {
+  width: 170px;
+}
+
+/* ---------- Panes ---------- */
+.panes {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.pane {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.paneHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.paneLabel {
+  font-weight: 600;
+}
+.note {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+.input {
+  flex: 1;
+  min-height: 0;
+  resize: none;
+}
+.proseInput {
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.6;
+}
+.setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+.setup p {
+  margin: 0;
+  max-width: 360px;
+}
+
+.outputPane {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.output {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  line-height: 1.65;
+}
+.placeholder {
+  margin: auto 0;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: var(--text-sm);
+}
+.plain {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Blinking caret at the end of a reply while it streams in. */
+.streaming > :last-child::after,
+pre.streaming::after {
+  content: "▍";
+  margin-left: 2px;
+  color: var(--mint);
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.model {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 260px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.model:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.model svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}

@@ -594,3 +594,71 @@ button.b-chip:hover {
   outline: none;
   box-shadow: none;
 }
+
+/* ---------- Prose (rendered markdown) ---------- */
+.b-prose {
+  font-size: var(--text-md);
+  line-height: 1.7;
+}
+.b-prose h1,
+.b-prose h2,
+.b-prose h3 {
+  font-family: var(--font-display);
+  margin: 1.1em 0 0.4em;
+  line-height: 1.25;
+}
+.b-prose h1 {
+  font-size: var(--text-2xl);
+}
+.b-prose h2 {
+  font-size: var(--text-xl);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.b-prose a {
+  color: var(--mint);
+}
+.b-prose code {
+  font-size: 0.88em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+.b-prose pre {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  overflow: auto;
+}
+.b-prose pre code {
+  background: none;
+  padding: 0;
+}
+.b-prose blockquote {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--butter);
+  color: var(--text-muted);
+}
+.b-prose table {
+  border-collapse: collapse;
+}
+.b-prose th,
+.b-prose td {
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+}
+.b-prose img {
+  max-width: 100%;
+}
+.b-prose hr {
+  border: none;
+  border-top: 1px dashed var(--border-strong);
+}
+.b-prose > :first-child {
+  margin-top: 0;
+}
+.b-prose > :last-child {
+  margin-bottom: 0;
+}

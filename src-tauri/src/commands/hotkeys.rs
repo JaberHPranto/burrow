@@ -30,6 +30,11 @@ const ACTIONS: &[Action] = &[
     Action { id: "color", name: "Burrow: pick colour", args: &["--tool", "color-picker", "--run"] },
     Action { id: "clipboard", name: "Burrow: clipboard history", args: &["--tool", "clipboard-history"] },
     Action { id: "emoji", name: "Burrow: emoji picker", args: &["--tool", "emoji-picker"] },
+    // AI tools run straight away on whatever is on the clipboard.
+    Action { id: "ai-grammar", name: "Burrow: fix grammar of clipboard", args: &["--tool", "ai-grammar", "--run"] },
+    Action { id: "ai-summarize", name: "Burrow: summarise clipboard", args: &["--tool", "ai-summarize", "--run"] },
+    Action { id: "ai-translate", name: "Burrow: translate clipboard", args: &["--tool", "ai-translate", "--run"] },
+    Action { id: "ai-explain", name: "Burrow: explain clipboard (code or error)", args: &["--tool", "ai-explain", "--run"] },
     Action { id: "tasks", name: "Burrow: tasks", args: &["--tool", "tasks"] },
     Action { id: "notes", name: "Burrow: quick notes", args: &["--tool", "quick-notes"] },
     Action { id: "settings", name: "Burrow: settings", args: &["--tool", "settings"] },
