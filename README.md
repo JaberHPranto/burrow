@@ -16,28 +16,54 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 
 ## Tools
 
-| Tool | What it does | Clipboard trigger |
-|---|---|---|
-| **Screenshot** | Drag over any part of the screen (no dialog), then **Copy**, **Save** or **Annotate** (arrow, box, ellipse, highlight, pixelate, text, numbered steps, crop) | — |
-| **OCR capture** | Drag over any text on screen and get it as text — local Tesseract, English/Bangla | — |
-| **Colour picker** | Pick any pixel on screen → HEX, RGB, HSL, OKLCH; recent picks | `#hex`, `rgb()`, `hsl()` |
-| **Tasks** | Personal to-dos. Quick add: `Review PR !high #work tomorrow`. Today / Upcoming / tags | — |
-| **Quick notes** | Scratchpad that saves as you type; pin and search | — |
-| **Markdown viewer** | Split edit/preview, open `.md` files, copy HTML | Markdown |
-| **JSON formatter** | Validate with line/column errors, prettify, minify, sort keys | `{…}` / `[…]` |
-| **Schema → mock request** | Request bodies from JSON Schema, OpenAPI (pick an operation) or an example payload; output as JSON, cURL, fetch or HTTPie | JSON Schema / OpenAPI |
-| **Password generator** | Crypto-secure, unbiased, entropy meter | — |
-| **Lorem & fake data** | Paragraphs, people (JSON), names, emails, UUIDs | — |
-| **Palette from image** | Paste/drop/open an image → palette as HEX, CSS vars or Tailwind | — |
-| **SVG optimizer → JSX** | SVGO + typed React component output | `<svg>…</svg>` |
-| **Port inspector** | Who's listening on which port, with one-click stop | — |
-| **.env diff** | Missing / empty / undocumented keys vs `.env.example` | `KEY=value` lines |
-| **Emoji picker** | Search 1,900+ emoji by name, tag or `:shortcode:`; skin tones; recents; `Enter` copies and closes, `Shift+Enter` keeps it open. Copy as shortcode, code point or HTML entity | — |
-| **Clipboard history** | Everything you've copied: search, pin, `Enter` to copy again. Skips secrets and password-manager copies | — |
-| **Settings** | Hotkeys, AI provider keys, clipboard history, appearance, backup/restore | — |
+### Capture
 
-**Tasks quick-add syntax:** `!high` `!med` `!low` (or `!1` `!2` `!3`, `!!!`), `#tag`, and a date:
+| Tool | What it does |
+|---|---|
+| **Screenshot** | Drag over any part of the screen (no dialog), then **Copy**, **Save** or **Annotate**: arrow, box, ellipse, highlight, pixelate, text, numbered steps, crop. Works across monitors and stays sharp on HiDPI |
+| **OCR capture** | Drag over any text on screen and get it as text. Local Tesseract, English and Bangla |
+| **Colour picker** | Pick any pixel on screen with GNOME's eyedropper → HEX, RGB, HSL, OKLCH; recent picks |
+
+### Clipboard
+
+| Tool | What it does |
+|---|---|
+| **Clipboard history** | Everything you've copied: search, pin, `Enter` to copy again. Skips secrets and password-manager copies ([how it works](#clipboard-history-on-gnome-wayland)) |
+| **Emoji picker** | 1,900+ emoji by name, tag or `:shortcode:`; skin tones and recents. `Enter` copies and closes, `Shift+Enter` keeps it open; copy as shortcode or HTML entity too |
+
+### Notes & tasks
+
+| Tool | What it does |
+|---|---|
+| **Tasks** | Personal to-dos with quick add (`Review PR !high #work tomorrow`), Today / Upcoming / tag views |
+| **Quick notes** | Scratchpad that saves as you type; pin and search |
+| **Markdown viewer** | Split edit/preview, open `.md` files, copy as HTML |
+
+### Developer tools
+
+| Tool | What it does |
+|---|---|
+| **JSON formatter** | Validate with line/column errors, prettify, minify, sort keys |
+| **Schema → mock request** | Request bodies from JSON Schema, OpenAPI (pick an operation) or an example payload; output as JSON, cURL, fetch or HTTPie |
+| **SVG optimizer → JSX** | SVGO + a typed React component |
+| **Port inspector** | Who's listening on which port, with one-click stop |
+| **.env diff** | Missing, empty and undocumented keys vs `.env.example` |
+| **Password generator** | Crypto-secure, unbiased, with an entropy meter |
+| **Lorem & fake data** | Paragraphs, people (JSON), names, emails, UUIDs |
+| **Palette from image** | Paste, drop or open an image → palette as HEX, CSS variables or Tailwind |
+
+**Clipboard suggestions.** When the launcher opens, Burrow looks at what you've copied and puts the
+matching tool on top: JSON → JSON formatter, JSON Schema / OpenAPI → Schema mock, a colour (`#hex`,
+`rgb()`, `hsl()`) → Colour picker, `<svg>` → SVG optimizer, `KEY=value` lines → .env diff,
+Markdown → Markdown viewer. Turn it off in Settings → General.
+
+**Tasks quick add:** `!high` `!med` `!low` (or `!1` `!2` `!3`, `!!!`), `#tag`, and a date:
 `today`, `tomorrow`/`tmr`, a weekday (`fri`), `next week`, `in 3 days`, `in 2w`, `dec 5`, `2026-12-01`.
+
+**Schema mock** understands `type`, `properties`/`required`, `items`, `enum`, `const`, `format`
+(email, uuid, date-time, uri, …), string length, number ranges and `multipleOf`, `nullable`,
+`allOf`/`oneOf`/`anyOf` and local `$ref`s. Field names steer values (`email`, `price`, `city`,
+`createdAt`…), and an `email` next to a `name` matches it.
 
 ## Settings
 
@@ -47,7 +73,7 @@ Open it from the gear in the launcher footer, by searching “settings”, from 
 |---|---|
 | **General** | Start on login, hide when unfocused, clipboard suggestions |
 | **Appearance** | Dark / light / follow the system; show or hide the bunny |
-| **Hotkeys** | Record a global shortcut for the launcher, screenshot, OCR, colour picker, clipboard history, emoji picker, tasks, notes or settings. Burrow writes them as GNOME custom shortcuts, warns about clashes and refuses GNOME's own (`Ctrl+Alt+T`…) |
+| **Hotkeys** | Record a global shortcut for the launcher, screenshot, OCR, colour picker, clipboard history, emoji picker, tasks, notes or settings. Burrow saves them as GNOME custom shortcuts, warns about clashes and refuses GNOME's own (`Ctrl+Alt+T`…) |
 | **AI providers** | API keys for OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-compatible URL; default provider and model; “Test connection” lists the models. Keys live in the **system keyring** (GNOME Keyring), never in Burrow's files, and are never sent back to the UI |
 | **Clipboard** | Record on/off, how many items to keep, skip secrets, install the background-recording extension |
 | **Data** | Where data lives, export/import a JSON backup, reset. Backups don't include API keys |
@@ -60,19 +86,14 @@ and makes no network calls; copies marked as coming from a password manager are 
 Install it from **Settings → Clipboard → Install extension**, then **log out and back in once**.
 Without the extension, Burrow still records whatever is on the clipboard each time you open the launcher.
 
-**Schema mock** understands `type`, `properties`/`required`, `items`, `enum`, `const`, `format`
-(email, uuid, date-time, uri, …), string length, number ranges and `multipleOf`, `nullable`,
-`allOf`/`oneOf`/`anyOf` and local `$ref`s. Field names steer values (`email`, `price`, `city`,
-`createdAt`…), and an `email` next to a `name` matches it.
+## Roadmap
 
-### Roadmap
-
-| Phase | Tools | Notes |
+| Phase | What | Notes |
 |---|---|---|
 | **1 ✅** | Launcher, clipboard suggestions, core dev tools | No special permissions needed |
-| **2 ✅** | Screenshot + annotation editor, OCR capture, colour picker, tasks, schema mock | Capture via `xdg-desktop-portal` (Wayland-safe); OCR via local Tesseract |
+| **2 ✅** | Screenshot + annotation editor, OCR, colour picker, tasks, schema mock | Silent capture via `gnome-screenshot` (portal fallback); OCR via local Tesseract |
 | **3 ✅** | Settings, clipboard history, emoji picker | Clipboard history uses a small companion Shell extension |
-| **4** | AI: summarize, grammar, rewrite, explain code/error, OCR → AI | Bring your own key (OpenAI, Anthropic, OpenRouter, Ollama); keys in the system keyring |
+| **4** | AI: summarise, grammar, rewrite, explain code/error, OCR → AI | Bring your own key; provider setup and keyring storage are already in Settings |
 
 ---
 
@@ -104,9 +125,8 @@ better with it) and a banner inside the tool with a copy-ready install command a
 | GNOME Keyring (Secret Service) | Settings → AI providers | For AI keys | Can't save API keys | Running by default on Ubuntu |
 | Burrow clipboard extension | Clipboard history (background) | Optional | History only updates when you open the launcher | Settings → Clipboard → Install |
 
-All other tools — Emoji picker (uses `fonts-noto-color-emoji`, installed by default on Ubuntu), Clipboard history, Tasks, Quick notes, Markdown viewer, JSON formatter, Schema → mock, Password
-generator, Lorem & fake data, Palette from image, SVG optimizer, Port inspector, .env diff — need
-nothing beyond the app itself.
+The emoji picker uses the system emoji font (`fonts-noto-color-emoji`, installed by default on Ubuntu)
+and hides emoji the font can't draw yet. Every other tool needs nothing beyond the app itself.
 
 **Everything at once:**
 
@@ -160,6 +180,10 @@ The tray menu has the same quick actions.
 
 Inside Burrow: `↑` `↓` to move, `Enter` to open, `Esc` to go back or close.
 
+**Emoji picker keys:** arrows move · `Enter` copy & close · `Shift+Enter` copy & stay · `Tab` / `Shift+Tab` next / previous category.
+
+**Clipboard history keys:** `↑` `↓` move · `Enter` copy & close · `Ctrl+P` pin · `Del` delete.
+
 **Selection overlay keys:** drag to select · `Space` / double-click whole screen · `Tab` next monitor · `Enter` copy ·
 `Ctrl+S` save · `E` annotate · `Esc` cancel.
 
@@ -195,7 +219,7 @@ src-tauri/src/
 ├── window.rs            Show / hide / toggle, open-tool events, blur guard
 ├── tray.rs              Tray menu
 ├── clipboard_bridge.rs  D-Bus service the Shell extension pushes copies to
-└── commands/            capture (portal screenshot + colour), ocr (tesseract), files (save dialogs),
+└── commands/            capture (gnome-screenshot / portal, colour), ocr (tesseract), files (save dialogs),
                          ports (/proc), hotkeys (gsettings), ai (keyring + test), clipboard (extension), app
 src-tauri/extension/     The GNOME Shell extension (legacy 42–44 and ESM 45+ variants)
 ```
@@ -220,9 +244,11 @@ See [CLAUDE.md](CLAUDE.md) for conventions and a step-by-step "add a tool" guide
 | `npm test` | Vitest |
 | `npm run lint:fix` | Biome format + autofix |
 | `cd src-tauri && cargo test` | Rust tests |
+| `cd src-tauri && cargo clippy --all-targets -- -D warnings` | Rust lint |
 
 ## Design
 
 PawsDev palette: mint `#88CCA6`, butter `#F8E192`, aqua `#A8DADC`, coral `#F28B82`
 on ink `#181A20`. Type: Outfit (display), Plus Jakarta Sans (body), JetBrains Mono (labels and code).
 Dark is the default. The light theme uses the hand-drawn look: ink outlines and offset shadows.
+The window is a rounded card with a soft shadow, so it stands out from whatever is behind it.
