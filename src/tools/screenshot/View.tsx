@@ -1,4 +1,6 @@
 import { useApp } from "@/app/store";
+import { decodeImage } from "@/core/capture/image";
+import { useSnip } from "@/core/capture/useSnip";
 import { handoff } from "@/core/handoff";
 import { useImageInput } from "@/core/hooks/useImageInput";
 import { clipboard } from "@/core/platform/clipboard";
@@ -28,7 +30,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor, type EditorTool, type LoadedImage, useEditorHistory } from "./Editor";
 import { timestampedName } from "./model";
-import { decodeImage, exportPng } from "./render";
+import { exportPng } from "./render";
 import styles from "./styles.module.css";
 
 const TOOLS: ReadonlyArray<{ id: EditorTool; label: string; key: string; icon: typeof Square }> = [
@@ -75,16 +77,40 @@ export default function Screenshot({ autoRun }: ToolProps) {
     [dispatch],
   );
 
+  const snip = useSnip();
+
+  /**
+   * Grab the screen → select a region in Burrow's fullscreen overlay → then
+   * copy, save, or annotate. Copy/Save finish the job and hide Burrow.
+   */
   const capture = useCallback(async () => {
     setBusy(true);
     try {
-      await load(await commands.captureScreenshot(true));
+      const result = await snip.start({ withActions: true });
+      if (!result) {
+        // Cancelled. If a hotkey opened us, go back to being invisible.
+        if (autoRun) await commands.hideLauncher();
+        return;
+      }
+      if (result.action === "annotate") {
+        await load(result.bytes);
+        return;
+      }
+      if (result.action === "copy") {
+        await clipboard.writeImage(result.bytes);
+        toast.success("Screenshot copied");
+      } else if (result.action === "save") {
+        const path = await commands.savePng(result.bytes, timestampedName());
+        if (!path) return; // save dialog cancelled: stay so they can choose again
+        toast.success(`Saved ${path.split("/").pop()}`);
+      }
+      await commands.hideLauncher();
     } catch (err) {
       if (!isCancelled(err)) toast.error(String(err));
     } finally {
       setBusy(false);
     }
-  }, [load]);
+  }, [snip.start, load, autoRun]);
 
   // Opened via hotkey/tray with --run → capture straight away. Or an image was handed over.
   // The ref guard stops React StrictMode's double effect from opening two portal dialogs.
@@ -173,7 +199,7 @@ export default function Screenshot({ autoRun }: ToolProps) {
   if (!image) {
     return (
       <EmptyState
-        title={busy ? "Waiting for your selection…" : "Capture something to annotate"}
+        title={busy ? "Select an area…" : "Capture something"}
         mood={busy ? "sleepy" : "curious"}
         action={
           <Row gap={2}>
@@ -188,8 +214,9 @@ export default function Screenshot({ autoRun }: ToolProps) {
           </Row>
         }
       >
-        Pick an area, window or the whole screen. You can also paste (<Kbd>Ctrl</Kbd> <Kbd>V</Kbd>)
-        or drop an image here.
+        Drag over any part of the screen, then copy, save or annotate it. You can also paste (
+        <Kbd>Ctrl</Kbd> <Kbd>V</Kbd>) or drop an image here.
+        {snip.overlay}
       </EmptyState>
     );
   }
@@ -300,6 +327,8 @@ export default function Screenshot({ autoRun }: ToolProps) {
         onSelect={setSelectedId}
         onToolDone={() => setTool("select")}
       />
+
+      {snip.overlay}
 
       <div className={styles.status}>
         <span>

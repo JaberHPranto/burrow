@@ -14,6 +14,8 @@
     "clipboard-manager:allow-write-text",
     "store:default",
     "core:window:allow-center",
-    "clipboard-manager:allow-write-image"
+    "clipboard-manager:allow-write-image",
+    "core:window:allow-set-fullscreen",
+    "core:window:allow-set-always-on-top"
   ]
 }

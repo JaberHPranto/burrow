@@ -18,8 +18,8 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 
 | Tool | What it does | Clipboard trigger |
 |---|---|---|
-| **Screenshot** | Capture an area/window/screen, annotate (arrow, box, ellipse, highlight, pixelate, text, numbered steps, crop), copy or save | — |
-| **OCR capture** | Select any area and get its text — local Tesseract, English/Bangla | — |
+| **Screenshot** | Drag over any part of the screen (no dialog), then **Copy**, **Save** or **Annotate** (arrow, box, ellipse, highlight, pixelate, text, numbered steps, crop) | — |
+| **OCR capture** | Drag over any text on screen and get it as text — local Tesseract, English/Bangla | — |
 | **Colour picker** | Pick any pixel on screen → HEX, RGB, HSL, OKLCH; recent picks | `#hex`, `rgb()`, `hsl()` |
 | **Tasks** | Personal to-dos. Quick add: `Review PR !high #work tomorrow`. Today / Upcoming / tags | — |
 | **Quick notes** | Scratchpad that saves as you type; pin and search | — |
@@ -113,6 +113,9 @@ Add `--run` to start its main action immediately (capture, pick).
 The tray menu has the same quick actions.
 
 Inside Burrow: `↑` `↓` to move, `Enter` to open, `Esc` to go back or close.
+
+**Selection overlay keys:** drag to select · `Space` / double-click whole screen · `Enter` copy ·
+`Ctrl+S` save · `E` annotate · `Esc` cancel. GNOME may ask once whether Burrow may take screenshots.
 
 **Screenshot editor keys:** `V` select/move · `A` arrow · `R` box · `E` ellipse · `H` highlight ·
 `B` pixelate · `T` text · `N` numbered step · `C` crop · `Del` delete · `Ctrl+Z` / `Ctrl+Shift+Z` undo/redo ·

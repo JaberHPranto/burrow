@@ -171,16 +171,3 @@ export async function exportPng(
   if (!blob) throw new Error("Couldn't encode PNG");
   return new Uint8Array(await blob.arrayBuffer());
 }
-
-/** Decode PNG/JPEG bytes into an image element. */
-export async function decodeImage(bytes: Uint8Array): Promise<HTMLImageElement> {
-  const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)]));
-  try {
-    const img = new Image();
-    img.src = url;
-    await img.decode();
-    return img;
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}

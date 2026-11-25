@@ -1,0 +1,110 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  cursor: crosshair;
+  user-select: none;
+  outline: none;
+  touch-action: none;
+}
+
+.image {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Before a selection exists the whole screen is dimmed. */
+.dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 11, 14, 0.45);
+}
+
+/* The selection punches a hole in the dim layer with a giant shadow. */
+.selection {
+  position: absolute;
+  border: 2px solid var(--mint);
+  box-shadow: 0 0 0 100vmax rgba(10, 11, 14, 0.45);
+  pointer-events: none;
+}
+
+.size {
+  position: absolute;
+  left: -2px;
+  top: -30px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--mint);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hint {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background: rgba(24, 26, 32, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #eceef2;
+  font-family: var(--font-body);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.bar {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: #1f222a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  cursor: default;
+}
+.bar button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #eceef2;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0 10px;
+}
+.bar button:hover {
+  background: #30343e;
+}
+.bar button svg {
+  width: 15px;
+  height: 15px;
+}
+.bar .primary {
+  background: var(--mint);
+  color: var(--ink);
+}
+.bar .primary:hover {
+  background: var(--mint-strong);
+}
+.bar .icon {
+  flex: 0 0 36px;
+  padding: 0;
+}

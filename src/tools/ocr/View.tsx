@@ -1,3 +1,4 @@
+import { useSnip } from "@/core/capture/useSnip";
 import { handoff } from "@/core/handoff";
 import { useImageInput } from "@/core/hooks/useImageInput";
 import { type OcrStatus, commands, isCancelled } from "@/core/platform/commands";
@@ -69,15 +70,24 @@ export default function Ocr({ autoRun }: ToolProps) {
     [run, lang],
   );
 
+  const snip = useSnip();
+
+  /** Select an area in Burrow's fullscreen overlay; releasing the mouse reads it. */
   const capture = useCallback(async () => {
     setBusy("capture");
     try {
-      loadImage(await commands.captureScreenshot(true));
+      const result = await snip.start({ withActions: false });
+      if (result) {
+        loadImage(result.bytes);
+      } else {
+        setBusy(null);
+        if (autoRun) await commands.hideLauncher();
+      }
     } catch (err) {
       setBusy(null);
       if (!isCancelled(err)) setError(String(err));
     }
-  }, [loadImage]);
+  }, [snip.start, loadImage, autoRun]);
 
   // Hand-off from the screenshot editor, or auto-capture from a hotkey — once.
   const started = useRef(false);
@@ -153,11 +163,12 @@ export default function Ocr({ autoRun }: ToolProps) {
       </Row>
 
       {error && <ErrorNote>{error}</ErrorNote>}
+      {snip.overlay}
 
       {!image && !busy ? (
         <EmptyState title="Grab text from anything on screen" mood="curious">
-          Capture an area, open an image, or paste one with <Kbd>Ctrl</Kbd> <Kbd>V</Kbd>. Everything
-          stays on your machine.
+          Drag over any text on screen, open an image, or paste one with <Kbd>Ctrl</Kbd>{" "}
+          <Kbd>V</Kbd>. Everything stays on your machine.
         </EmptyState>
       ) : (
         <div className={styles.split}>

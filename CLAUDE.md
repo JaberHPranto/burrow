@@ -33,7 +33,8 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
 | `src/core/storage/` | Persistence | Use `usePersistentState(toolId, key, initial)`. Namespace = tool id. |
 | `src/core/*` (color, fake, search, hooks) | Shared pure logic and hooks | Must be tested. If two tools need the same logic, it moves here. |
 | `src/core/handoff.ts` | Pass data between tools | Key = `"<receiving-tool>:<what>"`, consumed once with `take`. |
-| `src/core/platform/window.ts` | `useWindowSize(w, h, active)` | Tools that need room (editor, schema mock) grow the window; size is restored on unmount. |
+| `src/core/platform/window.ts` | `useWindowSize(w, h, active)`, `overlayWindow` | Tools that need room (editor, schema mock) grow the window; size is restored on unmount. `overlayWindow` enters/exits fullscreen for region selection. |
+| `src/core/capture/` | Region selection overlay (`useSnip`), crop/decode helpers | Shared by Screenshot and OCR. Geometry is pure and tested. |
 | `src/design/` | Design system | Tools import UI only from `@/design`. No raw colours: use tokens. |
 | `src/features/` | Launcher and ToolHost | App chrome, not tools. |
 | `src-tauri/src/commands/<tool>.rs` | Native code for one tool | Validate every argument. Return `crate::error::Result`. Add unit tests for parsing logic. |
@@ -95,9 +96,12 @@ Use `src/tools/json-formatter/` as the reference implementation.
 
 - **Global hotkeys:** apps can't grab them on Wayland. GNOME custom shortcuts run `burrow --toggle` / `burrow --tool <id>`; `tauri-plugin-single-instance` forwards args to the running app (`cli.rs` → `window.rs`). Setup: `scripts/setup-gnome-shortcuts.sh`.
 - **Tray:** GNOME delivers no click events to tray icons, only the menu. Put actions in the menu.
-- **Screenshots / colour picking:** `xdg-desktop-portal` via the `ashpd` crate (`commands/capture.rs`).
-  GNOME shows its own area/window picker; Burrow hides itself first (`while_hidden`). `--run` tools keep
-  the window hidden until the capture finishes.
+- **Screenshots:** `xdg-desktop-portal` via `ashpd` (`commands/capture.rs`), **non-interactive** (no GNOME
+  dialog): Burrow hides, grabs the whole screen, then `core/capture/useSnip` shows it in a fullscreen
+  overlay where the user drags a region (Flameshot-style). Tools call `snip.start({ withActions })` and
+  render `snip.overlay`. Overlay keys are handled in the capture phase so `Esc` never reaches ToolHost.
+  The overlay maps view ↔ image pixels with `containFit` (handles HiDPI; multi-monitor is letterboxed).
+- **Colour picking:** portal `PickColor` (GNOME's own eyedropper).
 - **OCR:** system `tesseract` binary (`commands/ocr.rs`); the tool shows install instructions if missing.
 - **Clipboard history (phase 3):** background clipboard watching isn't possible on GNOME Wayland. Plan: a small companion GNOME Shell extension that forwards copies to Burrow.
 - **Launcher window:** frameless, always on top, skip taskbar, hides on blur in release builds only. Drag regions use `data-tauri-drag-region`.

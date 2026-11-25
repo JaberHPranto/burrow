@@ -59,9 +59,18 @@ export const commands = {
   /** Tool requested with `burrow --tool <id>` on a cold start, if any. */
   takePendingTool: () => call<OpenToolRequest | null>("take_pending_tool"),
 
-  /** PNG bytes of a screen capture. `interactive` = let the user pick an area/window. */
-  captureScreenshot: async (interactive = true) =>
-    new Uint8Array(await call<ArrayBuffer>("capture_screenshot", { interactive })),
+  /**
+   * PNG bytes of a screen capture. Default: the whole screen, silently, leaving
+   * the window hidden so a selection overlay can take over (see core/capture).
+   * `interactive` shows GNOME's own screenshot dialog instead.
+   */
+  captureScreenshot: async (opts: { interactive?: boolean; reshow?: boolean } = {}) =>
+    new Uint8Array(
+      await call<ArrayBuffer>("capture_screenshot", {
+        interactive: opts.interactive ?? false,
+        reshow: opts.reshow ?? false,
+      }),
+    ),
   pickColor: () => call<PickedColor>("pick_color"),
 
   ocrStatus: () => call<OcrStatus>("ocr_status"),

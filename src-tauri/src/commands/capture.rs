@@ -25,8 +25,10 @@ fn portal_error(err: ashpd::Error) -> Error {
     }
 }
 
-/// Run `f` with the launcher hidden, then bring it back no matter what happened.
-async fn while_hidden<T, F, Fut>(app: &AppHandle, f: F) -> Result<T>
+/// Run `f` with the launcher hidden. With `reshow`, bring it back afterwards no
+/// matter what happened; without it the frontend shows the window itself (e.g.
+/// as a fullscreen selection overlay).
+async fn while_hidden<T, F, Fut>(app: &AppHandle, reshow: bool, f: F) -> Result<T>
 where
     F: FnOnce() -> Fut,
     Fut: std::future::Future<Output = Result<T>>,
@@ -35,15 +37,22 @@ where
     window::hide(app);
     tokio::time::sleep(HIDE_DELAY).await;
     let result = f().await;
-    window::show(app);
+    if reshow || result.is_err() {
+        window::show(app);
+    }
     result
 }
 
-/// Capture the screen. `interactive` lets the user choose an area or window.
-/// Returns the PNG bytes as a raw binary response (no JSON/base64 overhead).
+/// Capture the screen and return the PNG bytes as a raw binary response.
+///
+/// - `interactive: false` grabs the whole screen with no dialog; Burrow then lets
+///   the user select a region in its own overlay (the default flow).
+/// - `interactive: true` shows GNOME's screenshot dialog instead.
+/// - `reshow: false` keeps the window hidden on success so the frontend can
+///   present the fullscreen selection overlay without a flash of the launcher.
 #[tauri::command]
-pub async fn capture_screenshot(app: AppHandle, interactive: bool) -> Result<Response> {
-    while_hidden(&app, || async {
+pub async fn capture_screenshot(app: AppHandle, interactive: bool, reshow: bool) -> Result<Response> {
+    while_hidden(&app, reshow, || async {
         let shot = Screenshot::request()
             .interactive(interactive)
             .modal(true)
@@ -71,7 +80,7 @@ pub struct Rgb {
 /// Let the user click any pixel on screen and return its colour.
 #[tauri::command]
 pub async fn pick_color(app: AppHandle) -> Result<Rgb> {
-    while_hidden(&app, || async {
+    while_hidden(&app, true, || async {
         let color = Color::pick()
             .send()
             .await
