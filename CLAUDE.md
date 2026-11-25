@@ -101,7 +101,9 @@ Use `src/tools/json-formatter/` as the reference implementation.
   "Share this screenshot?" each time for unsandboxed apps. Burrow hides, grabs the whole screen, then `core/capture/useSnip` shows it in a fullscreen
   overlay where the user drags a region (Flameshot-style). Tools call `snip.start({ withActions })` and
   render `snip.overlay`. Overlay keys are handled in the capture phase so `Esc` never reaches ToolHost.
-  The overlay maps view ↔ image pixels with `containFit` (handles HiDPI; multi-monitor is letterboxed).
+  The desktop capture is split per monitor (`monitorRegions` + `getMonitorLayout`); the overlay shows the
+  current monitor 1:1 on a device-pixel canvas (sharp on HiDPI) and `Tab` cycles monitors. View ↔ image
+  mapping uses `containFit`.
 - **Colour picking:** portal `PickColor` (GNOME's own eyedropper).
 - **OCR:** system `tesseract` binary (`commands/ocr.rs`); the tool shows install instructions if missing.
 - **Clipboard history (phase 3):** background clipboard watching isn't possible on GNOME Wayland. Plan: a small companion GNOME Shell extension that forwards copies to Burrow.

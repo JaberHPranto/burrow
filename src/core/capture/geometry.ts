@@ -70,3 +70,37 @@ export function actionBarPosition(
 
 /** A drag shorter than this (in view pixels) is treated as a click. */
 export const MIN_SELECTION = 6;
+
+/**
+ * Split a whole-desktop screenshot into one region per monitor.
+ *
+ * `monitors` are in the desktop's coordinate space (physical pixels, any origin).
+ * The screenshot covers their bounding box; scaling by image/bounds keeps this
+ * correct even when the compositor's capture scale differs from the reported one.
+ * Returns the whole image when there's 0–1 monitor or the layout looks wrong.
+ */
+export function monitorRegions(monitors: readonly Box[], imageW: number, imageH: number): Box[] {
+  const whole = [{ x: 0, y: 0, w: imageW, h: imageH }];
+  if (monitors.length <= 1) return whole;
+  const minX = Math.min(...monitors.map((m) => m.x));
+  const minY = Math.min(...monitors.map((m) => m.y));
+  const maxX = Math.max(...monitors.map((m) => m.x + m.w));
+  const maxY = Math.max(...monitors.map((m) => m.y + m.h));
+  const bw = maxX - minX;
+  const bh = maxY - minY;
+  if (bw <= 0 || bh <= 0) return whole;
+  const sx = imageW / bw;
+  const sy = imageH / bh;
+  // Sanity check: the image should match the layout's aspect ratio closely.
+  if (Math.abs(sx - sy) / Math.max(sx, sy) > 0.05) return whole;
+  return monitors.map((m) => {
+    const x = Math.round((m.x - minX) * sx);
+    const y = Math.round((m.y - minY) * sy);
+    return {
+      x,
+      y,
+      w: Math.min(imageW - x, Math.round(m.w * sx)),
+      h: Math.min(imageH - y, Math.round(m.h * sy)),
+    };
+  });
+}

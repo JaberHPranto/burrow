@@ -44,3 +44,33 @@ export const overlayWindow = {
     await getCurrentWindow().setFullscreen(false);
   },
 };
+
+export interface MonitorLayout {
+  /** Monitor rectangles in physical desktop pixels. */
+  monitors: Array<{ x: number; y: number; w: number; h: number }>;
+  /** Index of the monitor Burrow's window is on (where the overlay will go fullscreen). */
+  current: number;
+}
+
+/** Monitor layout for splitting a whole-desktop screenshot. Null in the browser. */
+export async function getMonitorLayout(): Promise<MonitorLayout | null> {
+  if (!isTauri()) return null;
+  const { availableMonitors, currentMonitor, primaryMonitor } = await import(
+    "@tauri-apps/api/window"
+  );
+  const all = await availableMonitors();
+  if (all.length === 0) return null;
+  const here = (await currentMonitor()) ?? (await primaryMonitor());
+  const current = here
+    ? all.findIndex((m) => m.position.x === here.position.x && m.position.y === here.position.y)
+    : 0;
+  return {
+    monitors: all.map((m) => ({
+      x: m.position.x,
+      y: m.position.y,
+      w: m.size.width,
+      h: m.size.height,
+    })),
+    current: Math.max(0, current),
+  };
+}

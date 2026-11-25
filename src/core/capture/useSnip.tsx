@@ -1,8 +1,9 @@
 /**
  * Flameshot-style region capture without GNOME's dialog:
- *   1. grab the whole screen silently (portal, non-interactive, window hidden)
- *   2. show it in a fullscreen overlay; the user drags a region
- *   3. resolve with the cropped PNG and the chosen action
+ *   1. grab the whole desktop silently (window hidden)
+ *   2. cut it into one image per monitor and show the current monitor's part
+ *      fullscreen at native resolution (Tab cycles monitors)
+ *   3. the user drags a region; resolve with the cropped PNG and the chosen action
  *
  * Usage:
  *   const snip = useSnip();
@@ -11,25 +12,25 @@
  *   return <>{ui}{snip.overlay}</>;
  */
 import { commands } from "@/core/platform/commands";
-import { overlayWindow } from "@/core/platform/window";
+import { getMonitorLayout, overlayWindow } from "@/core/platform/window";
 import { type ReactNode, useCallback, useRef, useState } from "react";
 import { type SnipAction, SnipOverlay } from "./SnipOverlay";
-import type { Box } from "./geometry";
-import { cropToPng } from "./image";
+import { type Box, monitorRegions } from "./geometry";
+import { cropToPng, decodeImage } from "./image";
 
 export type { SnipAction } from "./SnipOverlay";
 
 export interface SnipResult {
-  /** Cropped region as PNG. */
+  /** Cropped region as PNG, at full screen resolution. */
   bytes: Uint8Array;
   /** Chosen action, or null when started without actions. */
   action: SnipAction | null;
 }
 
 interface Session {
-  image: HTMLImageElement;
-  /** Object URL backing `image`; revoked when the session ends. */
-  url: string;
+  /** One full-resolution image per monitor. */
+  screens: ImageBitmap[];
+  index: number;
   withActions: boolean;
   resolve: (result: SnipResult | null) => void;
 }
@@ -46,14 +47,22 @@ export function useSnip(): {
     if (busy.current) return null;
     busy.current = true;
     try {
-      const screen = await commands.captureScreenshot({ interactive: false, reshow: false });
-      const url = URL.createObjectURL(new Blob([new Uint8Array(screen)], { type: "image/png" }));
-      const image = new Image();
-      image.src = url;
-      await image.decode();
+      const [desktop, layout] = await Promise.all([
+        commands.captureScreenshot({ interactive: false, reshow: false }).then(decodeImage),
+        getMonitorLayout().catch(() => null),
+      ]);
+      const regions = monitorRegions(
+        layout?.monitors ?? [],
+        desktop.naturalWidth,
+        desktop.naturalHeight,
+      );
+      const screens = await Promise.all(
+        regions.map((r) => createImageBitmap(desktop, r.x, r.y, r.w, r.h)),
+      );
+      const index = regions.length > 1 ? Math.min(layout?.current ?? 0, screens.length - 1) : 0;
       await overlayWindow.enter();
       return await new Promise<SnipResult | null>((resolve) =>
-        setSession({ image, url, withActions, resolve }),
+        setSession({ screens, index, withActions, resolve }),
       );
     } finally {
       busy.current = false;
@@ -65,27 +74,39 @@ export function useSnip(): {
       if (!session) return;
       setSession(null);
       await overlayWindow.exit();
+      const screen = session.screens[session.index];
       try {
         session.resolve(
-          result
-            ? { bytes: await cropToPng(session.image, result.box), action: result.action }
+          result && screen
+            ? { bytes: await cropToPng(screen, result.box), action: result.action }
             : null,
         );
       } finally {
-        URL.revokeObjectURL(session.url);
+        for (const s of session.screens) s.close();
       }
     },
     [session],
   );
 
-  const overlay = session ? (
-    <SnipOverlay
-      image={session.image}
-      withActions={session.withActions}
-      onDone={(box, action) => void finish({ box, action })}
-      onCancel={() => void finish(null)}
-    />
-  ) : null;
+  const screen = session?.screens[session.index];
+  const overlay =
+    session && screen ? (
+      <SnipOverlay
+        key={session.index}
+        image={screen}
+        withActions={session.withActions}
+        monitor={
+          session.screens.length > 1
+            ? { index: session.index, count: session.screens.length }
+            : null
+        }
+        onNextMonitor={() =>
+          setSession((s) => (s ? { ...s, index: (s.index + 1) % s.screens.length } : s))
+        }
+        onDone={(box, action) => void finish({ box, action })}
+        onCancel={() => void finish(null)}
+      />
+    ) : null;
 
   return { start, overlay, active: session !== null };
 }

@@ -116,7 +116,7 @@ The tray menu has the same quick actions.
 
 Inside Burrow: `↑` `↓` to move, `Enter` to open, `Esc` to go back or close.
 
-**Selection overlay keys:** drag to select · `Space` / double-click whole screen · `Enter` copy ·
+**Selection overlay keys:** drag to select · `Space` / double-click whole screen · `Tab` next monitor · `Enter` copy ·
 `Ctrl+S` save · `E` annotate · `Esc` cancel.
 
 **Screenshot editor keys:** `V` select/move · `A` arrow · `R` box · `E` ellipse · `H` highlight ·

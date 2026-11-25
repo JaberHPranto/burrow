@@ -16,7 +16,11 @@ import {
 export type SnipAction = "copy" | "save" | "annotate";
 
 interface SnipOverlayProps {
-  image: HTMLImageElement;
+  /** One monitor's screenshot at full (physical) resolution. */
+  image: ImageBitmap;
+  /** Shown when there are several monitors; Tab calls onNextMonitor. */
+  monitor: { index: number; count: number } | null;
+  onNextMonitor: () => void;
   /** Show Copy / Save / Annotate after selecting. Without it, releasing the mouse confirms. */
   withActions: boolean;
   onDone: (box: Box, action: SnipAction | null) => void;
@@ -26,8 +30,16 @@ interface SnipOverlayProps {
 const BAR_W = 330;
 const BAR_H = 44;
 
-export function SnipOverlay({ image, withActions, onDone, onCancel }: SnipOverlayProps) {
+export function SnipOverlay({
+  image,
+  withActions,
+  monitor,
+  onNextMonitor,
+  onDone,
+  onCancel,
+}: SnipOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [view, setView] = useState({ w: window.innerWidth, h: window.innerHeight });
   const [drag, setDrag] = useState<{ start: Pt; current: Pt } | null>(null);
   const [selection, setSelection] = useState<Box | null>(null);
@@ -39,18 +51,18 @@ export function SnipOverlay({ image, withActions, onDone, onCancel }: SnipOverla
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const fit = containFit(image.naturalWidth, image.naturalHeight, view.w, view.h);
+  const fit = containFit(image.width, image.height, view.w, view.h);
   const live = drag ? boxFromPoints(drag.start, drag.current) : selection;
-  const imageBox = live ? viewBoxToImage(live, fit, image.naturalWidth, image.naturalHeight) : null;
+  const imageBox = live ? viewBoxToImage(live, fit, image.width, image.height) : null;
 
   function confirm(action: SnipAction | null, box: Box | null = selection) {
     if (!box) return;
-    const region = viewBoxToImage(box, fit, image.naturalWidth, image.naturalHeight);
+    const region = viewBoxToImage(box, fit, image.width, image.height);
     if (region.w > 0 && region.h > 0) onDone(region, action);
   }
 
   function selectAll() {
-    const all = imageViewBox(image.naturalWidth, image.naturalHeight, fit);
+    const all = imageViewBox(image.width, image.height, fit);
     if (withActions) setSelection(all);
     else confirm(null, all);
   }
@@ -62,6 +74,7 @@ export function SnipOverlay({ image, withActions, onDone, onCancel }: SnipOverla
       const key = e.key.toLowerCase();
       let handled = true;
       if (e.key === "Escape") onCancel();
+      else if (e.key === "Tab" && monitor) onNextMonitor();
       else if (e.key === " ") selectAll();
       else if (selection && withActions && (e.key === "Enter" || (mod && key === "c")))
         confirm("copy");
@@ -79,6 +92,25 @@ export function SnipOverlay({ image, withActions, onDone, onCancel }: SnipOverla
   });
 
   useEffect(() => rootRef.current?.focus(), []);
+
+  // Draw at device-pixel resolution so the screenshot is shown 1:1 (sharp on HiDPI).
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(view.w * dpr);
+    canvas.height = Math.round(view.h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(
+      image,
+      fit.offsetX,
+      fit.offsetY,
+      image.width * fit.scale,
+      image.height * fit.scale,
+    );
+  }, [image, view, fit.offsetX, fit.offsetY, fit.scale]);
 
   function onPointerDown(e: React.PointerEvent) {
     if (e.button !== 0) return;
@@ -109,18 +141,7 @@ export function SnipOverlay({ image, withActions, onDone, onCancel }: SnipOverla
       onPointerUp={onPointerUp}
       onDoubleClick={selectAll}
     >
-      <img
-        src={image.src}
-        alt=""
-        className={styles.image}
-        style={{
-          left: fit.offsetX,
-          top: fit.offsetY,
-          width: image.naturalWidth * fit.scale,
-          height: image.naturalHeight * fit.scale,
-        }}
-        draggable={false}
-      />
+      <canvas ref={canvasRef} className={styles.canvas} />
 
       {live ? (
         <div
@@ -139,7 +160,14 @@ export function SnipOverlay({ image, withActions, onDone, onCancel }: SnipOverla
 
       {!live && (
         <div className={styles.hint}>
-          Drag to select · <Kbd>Space</Kbd> whole screen · <Kbd>Esc</Kbd> cancel
+          Drag to select · <Kbd>Space</Kbd> whole screen
+          {monitor && (
+            <>
+              {" "}
+              · <Kbd>Tab</Kbd> monitor {monitor.index + 1}/{monitor.count}
+            </>
+          )}{" "}
+          · <Kbd>Esc</Kbd> cancel
         </div>
       )}
 

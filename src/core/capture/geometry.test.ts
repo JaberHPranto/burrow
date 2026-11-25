@@ -4,6 +4,7 @@ import {
   boxFromPoints,
   containFit,
   imageViewBox,
+  monitorRegions,
   viewBoxToImage,
 } from "./geometry";
 
@@ -75,5 +76,46 @@ describe("actionBarPosition", () => {
   it("goes inside for a full-screen selection and stays on screen", () => {
     const p = actionBarPosition({ x: 0, y: 0, w: 1000, h: 800 }, 300, 44, view.w, view.h);
     expect(p).toEqual({ x: 690, y: 746 });
+  });
+});
+
+describe("monitorRegions", () => {
+  it("splits side-by-side monitors", () => {
+    const monitors = [
+      { x: 0, y: 0, w: 1920, h: 1080 },
+      { x: 1920, y: 0, w: 2560, h: 1440 },
+    ];
+    expect(monitorRegions(monitors, 4480, 1440)).toEqual([
+      { x: 0, y: 0, w: 1920, h: 1080 },
+      { x: 1920, y: 0, w: 2560, h: 1440 },
+    ]);
+  });
+
+  it("handles negative origins and a capture at a different scale", () => {
+    const monitors = [
+      { x: -1920, y: 0, w: 1920, h: 1080 },
+      { x: 0, y: 0, w: 1920, h: 1080 },
+    ];
+    // compositor captured at half the reported size
+    expect(monitorRegions(monitors, 1920, 540)).toEqual([
+      { x: 0, y: 0, w: 960, h: 540 },
+      { x: 960, y: 0, w: 960, h: 540 },
+    ]);
+  });
+
+  it("falls back to the whole image for one monitor or a mismatched layout", () => {
+    expect(monitorRegions([{ x: 0, y: 0, w: 1920, h: 1080 }], 1920, 1080)).toEqual([
+      { x: 0, y: 0, w: 1920, h: 1080 },
+    ]);
+    expect(
+      monitorRegions(
+        [
+          { x: 0, y: 0, w: 100, h: 100 },
+          { x: 100, y: 0, w: 100, h: 100 },
+        ],
+        500,
+        500,
+      ),
+    ).toEqual([{ x: 0, y: 0, w: 500, h: 500 }]);
   });
 });
