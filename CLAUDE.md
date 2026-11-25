@@ -34,6 +34,7 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
 | `src/core/*` (color, fake, search, hooks) | Shared pure logic and hooks | Must be tested. If two tools need the same logic, it moves here. |
 | `src/core/handoff.ts` | Pass data between tools | Key = `"<receiving-tool>:<what>"`, consumed once with `take`. |
 | `src/core/platform/window.ts` | `useWindowSize(w, h, active)`, `overlayWindow` | Tools that need room (editor, schema mock) grow the window; size is restored on unmount. `overlayWindow` enters/exits fullscreen for region selection. |
+| `src/core/deps/` | Optional system packages: catalogue, `reportFor` badge logic, status store | When a tool uses a system package, add it to `catalog.ts` + `commands/deps.rs` and list it in the tool's `requires`. Update the README dependency table. |
 | `src/core/capture/` | Region selection overlay (`useSnip`), crop/decode helpers | Shared by Screenshot and OCR. Geometry is pure and tested. |
 | `src/design/` | Design system | Tools import UI only from `@/design`. No raw colours: use tokens. |
 | `src/features/` | Launcher and ToolHost | App chrome, not tools. |
@@ -48,7 +49,9 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
      If the tool has a main action (capture, pick), start it when `autoRun` is true. Guard with a
      `useRef` so React StrictMode's double effect doesn't run it twice.
    - `styles.module.css`: optional, only for layout the design system doesn't cover.
-   - `index.ts`: `export default defineTool({ id, name, description, category, icon, tone, keywords, component: lazy(() => import("./View")), detect? })`
+   - `index.ts`: `export default defineTool({ id, name, description, category, icon, tone, keywords, component: lazy(() => import("./View")), detect?, requires? })`
+     `requires` lists system packages (`{ id, level: "required" | "recommended" | "optional", why }`); missing ones
+     get a launcher badge and an install banner automatically.
 2. Add one import and one array entry in `src/tools/index.ts`.
 3. If it can act on clipboard text, add `detect(text) → { score, label } | null`:
    - Pure and fast (it runs on every launcher open). Return null unless confident.

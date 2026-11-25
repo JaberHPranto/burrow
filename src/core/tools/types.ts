@@ -1,3 +1,4 @@
+import type { Requirement } from "@/core/deps/catalog";
 import type { Tone } from "@/design";
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType, LazyExoticComponent } from "react";
@@ -47,6 +48,8 @@ export interface ToolDefinition {
   keywords?: readonly string[];
   /** Lazily loaded so the launcher opens instantly. */
   component: LazyExoticComponent<ComponentType<ToolProps>>;
+  /** System packages the tool uses. Missing ones show a badge and an install banner. */
+  requires?: readonly Requirement[];
   /** Optional: recognise clipboard text this tool can act on. Must be fast and pure. */
   detect?: (text: string) => ClipboardMatch | null;
 }

@@ -1,4 +1,5 @@
 import { useSnip } from "@/core/capture/useSnip";
+import { useDeps } from "@/core/deps/store";
 import { handoff } from "@/core/handoff";
 import { useImageInput } from "@/core/hooks/useImageInput";
 import { type OcrStatus, commands, isCancelled } from "@/core/platform/commands";
@@ -6,7 +7,6 @@ import { usePersistentState } from "@/core/storage/usePersistentState";
 import type { ToolProps } from "@/core/tools/types";
 import {
   Button,
-  CodeBlock,
   CopyButton,
   EmptyState,
   ErrorNote,
@@ -31,8 +31,6 @@ const LAYOUTS = [
   { value: "paragraphs", label: "Paragraphs" },
 ] as const;
 
-const INSTALL_CMD = "sudo apt install tesseract-ocr tesseract-ocr-eng tesseract-ocr-ben";
-
 export default function Ocr({ autoRun }: ToolProps) {
   const [status, setStatus] = useState<OcrStatus | null>(null);
   const [lang, setLang] = usePersistentState("ocr", "lang", "eng");
@@ -43,9 +41,12 @@ export default function Ocr({ autoRun }: ToolProps) {
   const [busy, setBusy] = useState<"capture" | "ocr" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Re-query whenever the dependency check re-runs (e.g. "Re-check" after installing).
+  const depStatus = useDeps((s) => s.status);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: depStatus is an intentional re-run trigger
   useEffect(() => {
     void commands.ocrStatus().then(setStatus);
-  }, []);
+  }, [depStatus]);
 
   const run = useCallback(async (bytes: Uint8Array, language: string) => {
     setBusy("ocr");
@@ -113,17 +114,8 @@ export default function Ocr({ autoRun }: ToolProps) {
 
   if (status && !status.available) {
     return (
-      <EmptyState
-        title="Tesseract isn't installed"
-        mood="oops"
-        action={
-          <Stack gap={2} style={{ alignItems: "center" }}>
-            <CodeBlock>{INSTALL_CMD}</CodeBlock>
-            <CopyButton value={INSTALL_CMD} size="sm" label="Copy command" />
-          </Stack>
-        }
-      >
-        OCR runs locally with Tesseract. Install it (Bangla pack included), then reopen this tool.
+      <EmptyState title="Tesseract isn't installed" mood="oops">
+        OCR runs locally with Tesseract. Install it with the command above, then press Re-check.
       </EmptyState>
     );
   }

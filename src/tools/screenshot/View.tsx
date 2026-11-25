@@ -64,11 +64,6 @@ export default function Screenshot({ autoRun }: ToolProps) {
   const [stroke, setStroke] = useState(4);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [silent, setSilent] = useState(true);
-
-  useEffect(() => {
-    void commands.silentCaptureAvailable().then(setSilent);
-  }, []);
 
   useWindowSize(1100, 740, image !== null);
 
@@ -222,12 +217,6 @@ export default function Screenshot({ autoRun }: ToolProps) {
         >
           Drag over any part of the screen, then copy, save or annotate it. You can also paste (
           <Kbd>Ctrl</Kbd> <Kbd>V</Kbd>) or drop an image here.
-          {!silent && (
-            <span className={styles.tip}>
-              GNOME will ask “Share this screenshot?” each time. Run{" "}
-              <code>sudo apt install gnome-screenshot</code> to skip it.
-            </span>
-          )}
         </EmptyState>
         {snip.overlay}
       </>

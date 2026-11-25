@@ -35,7 +35,7 @@ pub fn run() {
             commands::app::take_pending_tool,
             commands::capture::capture_screenshot,
             commands::capture::pick_color,
-            commands::capture::silent_capture_available,
+            commands::deps::check_dependencies,
             commands::ocr::ocr_status,
             commands::ocr::ocr_image,
             commands::files::save_png,

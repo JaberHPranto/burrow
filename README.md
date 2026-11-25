@@ -52,28 +52,45 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 
 ---
 
-## Getting started
+## Dependencies
 
-### Prerequisites (Ubuntu 22.04+)
+Everything below is for **Ubuntu 22.04+ / GNOME**. Burrow checks the optional packages at startup:
+a tool that's missing something shows a badge in the launcher (**red** = needed, **yellow** = works
+better with it) and a banner inside the tool with a copy-ready install command and a **Re-check** button.
+
+### To build and develop
+
+| What | Why | Install |
+|---|---|---|
+| **Rust** (stable) | Compiles the native side | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
+| **Node.js 20+** | Frontend tooling (Vite, TypeScript) | via nvm / fnm / your package manager |
+| **Tauri system libraries** | WebView, tray, icons, input | `sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev` |
+
+### To run (per feature)
+
+| Package | Used by | Needed? | What happens without it | Install |
+|---|---|---|---|---|
+| `libwebkit2gtk-4.1-0`, `libayatana-appindicator3-1` | The whole app | **Required** | Burrow won't start | Pulled in automatically by the `.deb` |
+| GNOME **AppIndicator** extension | Tray icon & menu | Recommended | No tray icon (hotkeys still work) | Enabled by default on Ubuntu; else `gnome-extensions enable ubuntu-appindicators@ubuntu.com` |
+| `gnome-screenshot` | Screenshot, OCR capture | Recommended | GNOME asks “Share this screenshot?” on every capture | `sudo apt install gnome-screenshot` |
+| `xdg-desktop-portal-gnome` | Colour picker (and screenshot fallback) | **Required** for Colour picker | Can't pick colours from the screen | Installed by default on Ubuntu; else `sudo apt install xdg-desktop-portal-gnome` |
+| `tesseract-ocr`, `tesseract-ocr-eng` | OCR capture | **Required** for OCR | OCR shows install instructions instead | `sudo apt install tesseract-ocr tesseract-ocr-eng` |
+| `tesseract-ocr-ben` | OCR capture | Optional | No Bangla recognition (English still works) | `sudo apt install tesseract-ocr-ben` |
+| `gsettings` (GNOME) | `scripts/setup-gnome-shortcuts.sh` | For hotkeys | Can't register hotkeys | Part of GNOME |
+
+All other tools — Tasks, Quick notes, Markdown viewer, JSON formatter, Schema → mock, Password
+generator, Lorem & fake data, Palette from image, SVG optimizer, Port inspector, .env diff — need
+nothing beyond the app itself.
+
+**Everything at once:**
 
 ```bash
-# Tauri system libraries
-sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
-  libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
-
-# Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Node 20+ (via nvm, fnm, or your package manager)
+sudo apt install gnome-screenshot xdg-desktop-portal-gnome tesseract-ocr tesseract-ocr-eng tesseract-ocr-ben
 ```
 
-For OCR (optional): `sudo apt install tesseract-ocr tesseract-ocr-eng tesseract-ocr-ben`.
-For dialog-free screenshots: `sudo apt install gnome-screenshot`. GNOME lets only its own screenshot
-helper capture silently; without it Burrow falls back to the screenshot portal, which on Ubuntu 22.04
-asks "Share this screenshot?" every time. The colour picker uses the portal (no prompt).
+## Getting started
 
-For the tray icon on GNOME, make sure the AppIndicator extension is on
-(Ubuntu ships it enabled): `gnome-extensions enable ubuntu-appindicators@ubuntu.com`.
+Install the [build dependencies](#to-build-and-develop) first (and any [runtime packages](#to-run-per-feature) for the tools you want).
 
 ### Run
 

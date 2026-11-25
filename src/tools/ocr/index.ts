@@ -10,5 +10,14 @@ export default defineTool({
   icon: ScanText,
   tone: "aqua",
   keywords: ["ocr", "text", "extract", "tesseract", "scan", "read", "copy text", "image to text"],
+  requires: [
+    { id: "tesseract", level: "required", why: "reads the text in images" },
+    {
+      id: "gnome-screenshot",
+      level: "recommended",
+      why: "captures without GNOME's “Share this screenshot?” dialog",
+    },
+    { id: "tesseract-ben", level: "optional", why: "adds Bangla text recognition" },
+  ],
   component: lazy(() => import("./View")),
 });

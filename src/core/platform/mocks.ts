@@ -82,7 +82,13 @@ const handlers: Record<string, Handler> = {
   take_pending_tool: (): OpenToolRequest | null => null,
   capture_screenshot: () => fakeScreenshot(),
   pick_color: (): PickedColor => ({ r: 136, g: 204, b: 166 }),
-  silent_capture_available: () => false,
+  // Pretend gnome-screenshot is missing so the badge UI is visible in browser dev.
+  check_dependencies: () => [
+    { id: "gnome-screenshot", installed: false },
+    { id: "portal", installed: true },
+    { id: "tesseract", installed: true },
+    { id: "tesseract-ben", installed: false },
+  ],
   ocr_status: (): OcrStatus => ({ available: true, languages: ["ben", "eng"] }),
   ocr_image: () =>
     "export async function login(email, password) {\n  const res = await fetch('/api/auth/login', {\n    method: 'POST', body: JSON.stringify({ email })\n  });\n  // TODO: password is never sent!\n  return res.json();\n}\n",

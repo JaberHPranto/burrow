@@ -3,6 +3,7 @@ import { registry } from "@/core/tools/registry";
 import { EmptyState, IconButton, Tile } from "@/design";
 import { ArrowLeft } from "lucide-react";
 import { Component, type ReactNode, Suspense, useEffect } from "react";
+import { DependencyBanner } from "./DependencyBanner";
 import styles from "./ToolHost.module.css";
 
 interface ToolHostProps {
@@ -44,6 +45,7 @@ export function ToolHost({ id, input, autoRun }: ToolHostProps) {
           <p className={styles.desc}>{tool.description}</p>
         </div>
       </header>
+      <DependencyBanner requires={tool.requires} />
       <main className={styles.body}>
         <ToolErrorBoundary key={id}>
           <Suspense fallback={null}>

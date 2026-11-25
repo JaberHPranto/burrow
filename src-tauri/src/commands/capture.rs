@@ -96,15 +96,6 @@ async fn grab_with_gnome_screenshot() -> Option<Vec<u8>> {
     bytes.filter(|b| !b.is_empty())
 }
 
-/// Is `gnome-screenshot` on PATH? Lets the UI explain how to avoid GNOME's
-/// confirmation dialog when it isn't.
-#[tauri::command]
-pub fn silent_capture_available() -> bool {
-    std::env::var_os("PATH")
-        .map(|paths| std::env::split_paths(&paths).any(|dir| dir.join("gnome-screenshot").is_file()))
-        .unwrap_or(false)
-}
-
 #[derive(Serialize)]
 pub struct Rgb {
     r: u8,

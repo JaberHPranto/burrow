@@ -11,6 +11,7 @@ export default defineTool({
   icon: Pipette,
   tone: "butter",
   keywords: ["color", "colour", "picker", "eyedropper", "hex", "rgb", "hsl", "oklch"],
+  requires: [{ id: "portal", level: "required", why: "provides GNOME's on-screen colour picker" }],
   component: lazy(() => import("./View")),
   detect: detectColor,
 });

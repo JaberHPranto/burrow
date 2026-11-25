@@ -1,3 +1,4 @@
+import { useDeps } from "@/core/deps/store";
 import { type OpenToolRequest, commands } from "@/core/platform/commands";
 import { EVENTS, onEvent } from "@/core/platform/events";
 import { Toaster } from "@/design";
@@ -11,6 +12,15 @@ export function App() {
   const theme = useApp((s) => s.theme);
   const openTool = useApp((s) => s.openTool);
   const hydrate = useApp((s) => s.hydrate);
+  const refreshDeps = useDeps((s) => s.refresh);
+
+  // Check optional packages at startup and whenever the launcher is shown
+  // (cheap: a few PATH lookups), so badges clear right after an install.
+  useEffect(() => {
+    void refreshDeps();
+    const unlisten = onEvent(EVENTS.shown, () => void refreshDeps());
+    return () => void unlisten.then((fn) => fn());
+  }, [refreshDeps]);
 
   useEffect(() => {
     void (async () => {

@@ -1,10 +1,12 @@
 import { useApp } from "@/app/store";
+import { reportFor } from "@/core/deps/logic";
+import { useDeps } from "@/core/deps/store";
 import { useListNavigation } from "@/core/hooks/useListNavigation";
 import { registry } from "@/core/tools/registry";
 import { CATEGORY_LABELS, CATEGORY_ORDER, type ToolDefinition } from "@/core/tools/types";
 import { cx } from "@/core/utils/cx";
-import { Bunny, Chip, IconButton, Kbd, Tile } from "@/design";
-import { Moon, Search, Sparkles, Sun } from "lucide-react";
+import { Bunny, Chip, IconButton, Kbd, Tag, Tile } from "@/design";
+import { Moon, PackageX, Search, Sparkles, Sun } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./Launcher.module.css";
 import { useClipboardSuggestions } from "./useClipboardSuggestions";
@@ -34,6 +36,7 @@ export function Launcher({ onClose }: { onClose: () => void }) {
   const recents = useApp((s) => s.recents);
   const openTool = useApp((s) => s.openTool);
   const theme = useApp((s) => s.theme);
+  const depStatus = useDeps((s) => s.status);
   const toggleTheme = useApp((s) => s.toggleTheme);
   const { text: clipText, suggestions } = useClipboardSuggestions();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -152,6 +155,7 @@ export function Launcher({ onClose }: { onClose: () => void }) {
                     <span className={styles.itemName}>{tool.name}</span>
                     <span className={styles.itemDesc}>{tool.description}</span>
                   </div>
+                  <MissingBadge report={reportFor(tool.requires, depStatus)} />
                   {i === active && <Kbd>↵</Kbd>}
                 </div>
               );
@@ -179,5 +183,20 @@ export function Launcher({ onClose }: { onClose: () => void }) {
         />
       </footer>
     </div>
+  );
+}
+
+/** "Needs Tesseract" (red) / "Better with gnome-screenshot" (yellow). */
+function MissingBadge({ report }: { report: ReturnType<typeof reportFor> }) {
+  const first = report.missing[0];
+  if (!first) return null;
+  const extra = report.missing.length > 1 ? ` +${report.missing.length - 1}` : "";
+  return (
+    <span title={report.installCommand}>
+      <Tag tone={first.level === "required" ? "coral" : "butter"} icon={PackageX}>
+        {first.level === "required" ? "Needs" : "Better with"} {first.dependency.name}
+        {extra}
+      </Tag>
+    </span>
   );
 }
