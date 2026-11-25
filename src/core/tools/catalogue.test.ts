@@ -15,6 +15,7 @@ describe("tool catalogue", () => {
     expect(registry.search("eaddrinuse")[0]?.id).toBe("port-inspector");
     expect(registry.search("api key")[0]?.id).toBe("settings");
     expect(registry.search("clipboard history")[0]?.id).toBe("clipboard-history");
+    expect(registry.search("emoji")[0]?.id).toBe("emoji-picker");
     expect(registry.search("todo")[0]?.id).toBe("tasks");
     expect(registry.search("annotate")[0]?.id).toBe("screenshot");
     expect(registry.search("ocr")[0]?.id).toBe("ocr");

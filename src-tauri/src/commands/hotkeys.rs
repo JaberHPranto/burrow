@@ -29,6 +29,7 @@ const ACTIONS: &[Action] = &[
     Action { id: "ocr", name: "Burrow: grab text (OCR)", args: &["--tool", "ocr", "--run"] },
     Action { id: "color", name: "Burrow: pick colour", args: &["--tool", "color-picker", "--run"] },
     Action { id: "clipboard", name: "Burrow: clipboard history", args: &["--tool", "clipboard-history"] },
+    Action { id: "emoji", name: "Burrow: emoji picker", args: &["--tool", "emoji-picker"] },
     Action { id: "tasks", name: "Burrow: tasks", args: &["--tool", "tasks"] },
     Action { id: "notes", name: "Burrow: quick notes", args: &["--tool", "quick-notes"] },
     Action { id: "settings", name: "Burrow: settings", args: &["--tool", "settings"] },

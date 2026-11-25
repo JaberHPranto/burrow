@@ -32,6 +32,7 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 | **SVG optimizer → JSX** | SVGO + typed React component output | `<svg>…</svg>` |
 | **Port inspector** | Who's listening on which port, with one-click stop | — |
 | **.env diff** | Missing / empty / undocumented keys vs `.env.example` | `KEY=value` lines |
+| **Emoji picker** | Search 1,900+ emoji by name, tag or `:shortcode:`; skin tones; recents; `Enter` copies and closes, `Shift+Enter` keeps it open. Copy as shortcode, code point or HTML entity | — |
 | **Clipboard history** | Everything you've copied: search, pin, `Enter` to copy again. Skips secrets and password-manager copies | — |
 | **Settings** | Hotkeys, AI provider keys, clipboard history, appearance, backup/restore | — |
 
@@ -46,7 +47,7 @@ Open it from the gear in the launcher footer, by searching “settings”, from 
 |---|---|
 | **General** | Start on login, hide when unfocused, clipboard suggestions |
 | **Appearance** | Dark / light / follow the system; show or hide the bunny |
-| **Hotkeys** | Record a global shortcut for the launcher, screenshot, OCR, colour picker, clipboard history, tasks, notes or settings. Burrow writes them as GNOME custom shortcuts, warns about clashes and refuses GNOME's own (`Ctrl+Alt+T`…) |
+| **Hotkeys** | Record a global shortcut for the launcher, screenshot, OCR, colour picker, clipboard history, emoji picker, tasks, notes or settings. Burrow writes them as GNOME custom shortcuts, warns about clashes and refuses GNOME's own (`Ctrl+Alt+T`…) |
 | **AI providers** | API keys for OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-compatible URL; default provider and model; “Test connection” lists the models. Keys live in the **system keyring** (GNOME Keyring), never in Burrow's files, and are never sent back to the UI |
 | **Clipboard** | Record on/off, how many items to keep, skip secrets, install the background-recording extension |
 | **Data** | Where data lives, export/import a JSON backup, reset. Backups don't include API keys |
@@ -70,7 +71,7 @@ Without the extension, Burrow still records whatever is on the clipboard each ti
 |---|---|---|
 | **1 ✅** | Launcher, clipboard suggestions, core dev tools | No special permissions needed |
 | **2 ✅** | Screenshot + annotation editor, OCR capture, colour picker, tasks, schema mock | Capture via `xdg-desktop-portal` (Wayland-safe); OCR via local Tesseract |
-| **3** | Settings ✅, clipboard history ✅, emoji picker | Clipboard history uses a small companion Shell extension |
+| **3 ✅** | Settings, clipboard history, emoji picker | Clipboard history uses a small companion Shell extension |
 | **4** | AI: summarize, grammar, rewrite, explain code/error, OCR → AI | Bring your own key (OpenAI, Anthropic, OpenRouter, Ollama); keys in the system keyring |
 
 ---
@@ -103,7 +104,7 @@ better with it) and a banner inside the tool with a copy-ready install command a
 | GNOME Keyring (Secret Service) | Settings → AI providers | For AI keys | Can't save API keys | Running by default on Ubuntu |
 | Burrow clipboard extension | Clipboard history (background) | Optional | History only updates when you open the launcher | Settings → Clipboard → Install |
 
-All other tools — Clipboard history, Tasks, Quick notes, Markdown viewer, JSON formatter, Schema → mock, Password
+All other tools — Emoji picker (uses `fonts-noto-color-emoji`, installed by default on Ubuntu), Clipboard history, Tasks, Quick notes, Markdown viewer, JSON formatter, Schema → mock, Password
 generator, Lorem & fake data, Palette from image, SVG optimizer, Port inspector, .env diff — need
 nothing beyond the app itself.
 

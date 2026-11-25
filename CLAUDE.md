@@ -137,5 +137,6 @@ draw it in `render.ts`, add a tool button in `View.tsx`.
 ## Roadmap
 
 - Phase 2 ✅: screenshot + annotation editor, OCR, colour picker, tasks, schema mock
-- Phase 3: Settings ✅, clipboard history ✅ (Shell extension), emoji picker (emojibase)
+- Phase 3 ✅: Settings, clipboard history (Shell extension), emoji picker (emojibase-data, lazy chunk;
+  `support.ts` hides emoji newer than the system font can draw)
 - Phase 4: AI tools with BYOK (OpenAI-compatible client + Anthropic; keys in keyring; streaming UI)

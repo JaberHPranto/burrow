@@ -7,6 +7,7 @@ import type { ToolDefinition } from "@/core/tools/types";
 import settings from "@/features/settings/definition";
 import clipboardHistory from "./clipboard-history";
 import colorPicker from "./color-picker";
+import emojiPicker from "./emoji-picker";
 import envDiff from "./env-diff";
 import fakeData from "./fake-data";
 import jsonFormatter from "./json-formatter";
@@ -28,6 +29,7 @@ export const tools: readonly ToolDefinition[] = [
   colorPicker,
   // clipboard
   clipboardHistory,
+  emojiPicker,
   // notes & tasks
   tasks,
   quickNotes,

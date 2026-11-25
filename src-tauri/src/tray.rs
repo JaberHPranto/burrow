@@ -19,6 +19,7 @@ const QUICK_TOOLS: &[(&str, &str, &str, bool)] = &[
     ("tool:tasks", "Tasks", "tasks", false),
     ("tool:notes", "Quick notes", "quick-notes", false),
     ("tool:clipboard", "Clipboard history", "clipboard-history", false),
+    ("tool:emoji", "Emoji picker", "emoji-picker", false),
     ("tool:settings", "Settings…", "settings", false),
 ];
 

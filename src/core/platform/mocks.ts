@@ -87,6 +87,7 @@ const hotkeys: HotkeysState = {
     { id: "ocr", name: "Burrow: grab text (OCR)", binding: "<Control><Alt>o" },
     { id: "color", name: "Burrow: pick colour", binding: "<Control><Alt>c" },
     { id: "clipboard", name: "Burrow: clipboard history", binding: null },
+    { id: "emoji", name: "Burrow: emoji picker", binding: null },
     { id: "tasks", name: "Burrow: tasks", binding: null },
     { id: "notes", name: "Burrow: quick notes", binding: "<Control><Alt>n" },
     { id: "settings", name: "Burrow: settings", binding: null },

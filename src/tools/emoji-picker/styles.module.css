@@ -1,0 +1,167 @@
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ---------- Skin tones ---------- */
+.tones {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.tone {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--font-emoji);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.tone:hover {
+  opacity: 1;
+}
+.toneActive {
+  opacity: 1;
+  background: var(--primary-soft);
+}
+
+/* ---------- Category tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 2px;
+}
+.tab {
+  flex: 1;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+.tab svg {
+  width: 17px;
+  height: 17px;
+}
+.tab:hover {
+  color: var(--text);
+}
+.tabActive {
+  color: var(--text);
+  border-bottom-color: var(--mint);
+}
+
+/* ---------- Grid ---------- */
+.grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.section + .section {
+  margin-top: var(--space-2);
+}
+.sectionTitle {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 4px 2px;
+  background: var(--bg);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.cells {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  gap: var(--gap);
+}
+.cell {
+  width: var(--cell);
+  height: var(--cell);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-emoji);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  /* Keep the selected cell clear of the sticky section title when scrolled to. */
+  scroll-margin-top: 28px;
+}
+.cellActive {
+  background: var(--primary-soft);
+  border-color: var(--mint);
+}
+
+/* ---------- Preview ---------- */
+.preview {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.big {
+  font-family: var(--font-emoji);
+  font-size: 36px;
+  line-height: 1;
+}
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.info strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.info strong::first-letter {
+  text-transform: uppercase;
+}
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  text-align: center;
+}
