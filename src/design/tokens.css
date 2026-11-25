@@ -44,6 +44,9 @@
 /* Dark (default) */
 :root,
 [data-theme="dark"] {
+  color-scheme: dark;
+  --window-edge: rgba(255, 255, 255, 0.09);
+  --window-shadow: 0 3px 10px rgba(0, 0, 0, 0.45), 0 0 2px rgba(0, 0, 0, 0.5);
   --bg: #181a20;
   --surface: #1f222a;
   --surface-2: #272b34;
@@ -75,6 +78,9 @@
 
 /* Light — the hand-drawn Sippy Paws look: ink outlines + offset shadows */
 [data-theme="light"] {
+  color-scheme: light;
+  --window-edge: rgba(24, 26, 32, 0.12);
+  --window-shadow: 0 3px 10px rgba(24, 26, 32, 0.16), 0 0 2px rgba(24, 26, 32, 0.12);
   --bg: #fbf9f3;
   --surface: #ffffff;
   --surface-2: #f3f0e6;

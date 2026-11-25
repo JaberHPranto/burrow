@@ -168,6 +168,31 @@
   height: 36px;
   padding: 0 var(--space-3);
 }
+.b-select-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.b-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  cursor: pointer;
+}
+.b-select option {
+  background: var(--bg);
+  color: var(--text);
+}
+.b-select-wrap__icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
 .b-input:focus,
 .b-textarea:focus,
 .b-select:focus {

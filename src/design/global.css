@@ -25,6 +25,27 @@ body {
   user-select: none;
 }
 
+/* Desktop app: the window is transparent and the app is a rounded card with a
+   soft shadow, so it stands apart from whatever is behind it. The gutter must
+   match WINDOW_GUTTER in core/platform/window.ts. */
+:root {
+  --window-gutter: 14px;
+  --window-radius: 16px;
+}
+[data-window="floating"],
+[data-window="floating"] body {
+  background: transparent;
+}
+[data-window="floating"] #root {
+  margin: var(--window-gutter);
+  height: calc(100% - 2 * var(--window-gutter));
+  background: var(--bg);
+  border: 1px solid var(--window-edge);
+  border-radius: var(--window-radius);
+  box-shadow: var(--window-shadow);
+  overflow: hidden;
+}
+
 h1,
 h2,
 h3 {

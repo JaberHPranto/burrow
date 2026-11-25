@@ -15,13 +15,13 @@
       {
         "label": "main",
         "title": "Burrow",
-        "width": 760,
-        "height": 520,
-        "minWidth": 640,
-        "minHeight": 420,
+        "width": 788,
+        "height": 548,
+        "minWidth": 668,
+        "minHeight": 448,
         "center": true,
         "decorations": false,
-        "transparent": false,
+        "transparent": true,
         "resizable": true,
         "visible": false,
         "skipTaskbar": true,
@@ -39,7 +39,9 @@
     "shortDescription": "Developer utilities, one hotkey away",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.png"],
     "linux": {
-      "deb": { "depends": ["libayatana-appindicator3-1"] }
+      "deb": {
+        "depends": ["libayatana-appindicator3-1"]
+      }
     }
   }
 }

@@ -119,6 +119,11 @@ Use `src/tools/json-formatter/` as the reference implementation.
 - **AI keys:** `commands/ai.rs` stores keys in the Secret Service keyring (service `dev.burrow.app`, user `ai:<provider>`).
   Keys go in, never come back out to the webview. Keyring calls run on a plain thread (`off_runtime`).
 - **Launcher window:** frameless, always on top, skip taskbar, hides on blur in release builds only. Drag regions use `data-tauri-drag-region`.
+- **Window chrome:** the OS window is transparent; the app is a rounded card with a shadow inside a 14px gutter
+  (`html[data-window="floating"]`, `--window-gutter` = `WINDOW_GUTTER` in `core/platform/window.ts`). Sizes passed to
+  `useWindowSize` are content sizes; the gutter is added for you. Fullscreen capture and browser dev use `"flat"`.
+- **Native `<select>`:** WebKitGTK paints selects with the GTK theme, so `Select` uses `appearance: none` and its own
+  chevron, and each theme sets `color-scheme`. Don't style raw `<select>` elements; use `Select` from `@/design`.
 
 ## Screenshot editor internals
 

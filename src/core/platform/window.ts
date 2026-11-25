@@ -1,14 +1,29 @@
 import { useEffect } from "react";
 import { isTauri } from "./runtime";
 
-/** Launcher size — keep in sync with `tauri.conf.json`. */
+/** Launcher content size. */
 export const DEFAULT_WINDOW = { width: 760, height: 520 } as const;
+
+/**
+ * Transparent margin around the app card that holds its drop shadow
+ * (`--window-gutter` in global.css). The OS window is the content size plus
+ * this on every side; `tauri.conf.json` uses 760+28 × 520+28.
+ */
+export const WINDOW_GUTTER = 14;
+
+/**
+ * "floating": rounded card with a shadow inside a transparent window (desktop app).
+ * "flat": edge to edge (browser dev, fullscreen capture overlay).
+ */
+export function setWindowChrome(mode: "floating" | "flat"): void {
+  document.documentElement.dataset.window = mode;
+}
 
 async function resize(width: number, height: number) {
   if (!isTauri()) return;
   const { getCurrentWindow, LogicalSize } = await import("@tauri-apps/api/window");
   const win = getCurrentWindow();
-  await win.setSize(new LogicalSize(width, height));
+  await win.setSize(new LogicalSize(width + WINDOW_GUTTER * 2, height + WINDOW_GUTTER * 2));
   await win.center();
 }
 
@@ -33,6 +48,7 @@ export const overlayWindow = {
     if (!isTauri()) return;
     const { getCurrentWindow } = await import("@tauri-apps/api/window");
     const win = getCurrentWindow();
+    setWindowChrome("flat");
     // Show before going fullscreen: GNOME ignores fullscreen requests for unmapped windows.
     await win.show();
     await win.setFullscreen(true);
@@ -42,6 +58,7 @@ export const overlayWindow = {
     if (!isTauri()) return;
     const { getCurrentWindow } = await import("@tauri-apps/api/window");
     await getCurrentWindow().setFullscreen(false);
+    setWindowChrome("floating");
   },
 };
 

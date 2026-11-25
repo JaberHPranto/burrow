@@ -1,5 +1,6 @@
 import { cx } from "@/core/utils/cx";
 import type { LucideIcon } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import {
   type InputHTMLAttributes,
   type ReactNode,
@@ -69,8 +70,17 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function 
   );
 });
 
+/**
+ * Native select with our own chevron. `appearance: none` matters on Linux:
+ * WebKitGTK otherwise paints the GTK theme's (light) background under our text.
+ */
 export function Select({ className, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={cx("b-select", className)} {...rest} />;
+  return (
+    <span className={cx("b-select-wrap", className)}>
+      <select className="b-select" {...rest} />
+      <ChevronDown aria-hidden className="b-select-wrap__icon" />
+    </span>
+  );
 }
 
 /** Heading above a pane (input/output) — same look as a field label, no control. */
