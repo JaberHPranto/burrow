@@ -11,10 +11,25 @@
 # (Older versions also bound Ctrl+Alt+J to the JSON formatter; that entry is left as-is.)
 set -euo pipefail
 
+# Find Burrow: $BURROW_BIN, then an installed `burrow`, then a build in this repo.
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN="${BURROW_BIN:-$(command -v burrow || true)}"
 if [[ -z "$BIN" ]]; then
-  echo "burrow not found on PATH. Install the .deb or set BURROW_BIN=/path/to/burrow" >&2
+  for candidate in "$REPO/src-tauri/target/release/burrow" "$REPO/src-tauri/target/debug/burrow"; do
+    if [[ -x "$candidate" ]]; then
+      BIN="$candidate"
+      break
+    fi
+  done
+fi
+if [[ -z "$BIN" ]]; then
+  echo "Burrow not found. Run 'npm run app:dev' once (or install the .deb), then re-run this script." >&2
   exit 1
+fi
+if [[ "$BIN" == */target/debug/burrow ]]; then
+  echo "Using the dev build: $BIN"
+  echo "Shortcuts work while 'npm run app:dev' is running. Install the .deb for always-on shortcuts."
+  echo
 fi
 
 SCHEMA="org.gnome.settings-daemon.plugins.media-keys"

@@ -97,7 +97,7 @@ sudo apt install ./src-tauri/target/release/bundle/deb/Burrow_*.deb
 Wayland doesn't let apps grab global shortcuts, so GNOME runs Burrow's CLI instead:
 
 ```bash
-scripts/setup-gnome-shortcuts.sh
+scripts/setup-gnome-shortcuts.sh   # finds an installed burrow, or your dev build
 ```
 
 | Shortcut | Action |
