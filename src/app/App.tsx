@@ -1,4 +1,4 @@
-import { commands } from "@/core/platform/commands";
+import { type OpenToolRequest, commands } from "@/core/platform/commands";
 import { EVENTS, onEvent } from "@/core/platform/events";
 import { Toaster } from "@/design";
 import { Launcher } from "@/features/launcher/Launcher";
@@ -17,7 +17,7 @@ export function App() {
       await hydrate();
       // Cold start via `burrow --tool <id>`: Rust parked the request until we were ready.
       const pending = await commands.takePendingTool();
-      if (pending) openTool(pending);
+      if (pending) openTool(pending.id, { autoRun: pending.run });
     })();
   }, [hydrate, openTool]);
 
@@ -27,7 +27,9 @@ export function App() {
 
   // `burrow --tool <id>` (hotkeys, tray menu) → open that tool.
   useEffect(() => {
-    const unlisten = onEvent<string>(EVENTS.openTool, (id) => openTool(id));
+    const unlisten = onEvent<OpenToolRequest>(EVENTS.openTool, (req) =>
+      openTool(req.id, { autoRun: req.run }),
+    );
     return () => void unlisten.then((fn) => fn());
   }, [openTool]);
 
@@ -36,7 +38,12 @@ export function App() {
       {route.name === "home" ? (
         <Launcher onClose={() => void commands.hideLauncher()} />
       ) : (
-        <ToolHost key={route.id} id={route.id} input={route.input} />
+        <ToolHost
+          key={`${route.id}:${route.nonce}`}
+          id={route.id}
+          input={route.input}
+          autoRun={route.autoRun}
+        />
       )}
       <Toaster />
     </>

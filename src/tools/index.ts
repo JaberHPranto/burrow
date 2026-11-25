@@ -4,31 +4,38 @@
  * within each category.
  */
 import type { ToolDefinition } from "@/core/tools/types";
-import contrastChecker from "./contrast-checker";
-import cssGenerators from "./css-generators";
+import colorPicker from "./color-picker";
 import envDiff from "./env-diff";
 import fakeData from "./fake-data";
 import jsonFormatter from "./json-formatter";
 import markdownViewer from "./markdown-viewer";
+import ocr from "./ocr";
 import paletteFromImage from "./palette-from-image";
 import passwordGenerator from "./password-generator";
 import portInspector from "./port-inspector";
 import quickNotes from "./quick-notes";
+import schemaMock from "./schema-mock";
+import screenshot from "./screenshot";
 import svgTools from "./svg-tools";
+import tasks from "./tasks";
 
 export const tools: readonly ToolDefinition[] = [
-  // notes
+  // capture
+  screenshot,
+  ocr,
+  colorPicker,
+  // notes & tasks
+  tasks,
   quickNotes,
   markdownViewer,
   // data
   jsonFormatter,
+  schemaMock,
   // generators
   passwordGenerator,
   fakeData,
   // frontend
-  contrastChecker,
   paletteFromImage,
-  cssGenerators,
   svgTools,
   // system
   portInspector,

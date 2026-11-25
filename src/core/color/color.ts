@@ -105,3 +105,39 @@ export function looksLikeColor(text: string): boolean {
     /^#|^rgb|^hsl/i.test(text.trim())
   );
 }
+
+/** sRGB → OKLCH (Björn Ottosson's OKLab). L 0–1, C ≥ 0, H 0–360 degrees. */
+export function rgbToOklch({ r, g, b }: Rgb): { l: number; c: number; h: number } {
+  const lin = (v: number) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const [lr, lg, lb] = [lin(r), lin(g), lin(b)];
+  const l_ = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+  const m_ = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+  const s_ = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
+  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
+  const A = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
+  const B = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
+  const c = Math.sqrt(A * A + B * B);
+  const h = c < 1e-4 ? 0 : ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360;
+  return { l: L, c, h };
+}
+
+/** All the CSS notations a developer might want to copy. */
+export function colorFormats(rgb: Rgb): Record<"hex" | "rgb" | "hsl" | "oklch", string> {
+  const { h, s, l } = rgbToHsl(rgb);
+  const ok = rgbToOklch(rgb);
+  const pct = (n: number) => `${Math.round(n * 100)}%`;
+  return {
+    hex: toHex(rgb),
+    rgb: `rgb(${rgb.r} ${rgb.g} ${rgb.b})`,
+    hsl: `hsl(${h} ${pct(s)} ${pct(l)})`,
+    oklch: `oklch(${(ok.l * 100).toFixed(1)}% ${ok.c.toFixed(3)} ${ok.h.toFixed(1)})`,
+  };
+}
+
+/** Pick ink or white text for legibility on a background colour. */
+export function readableOn(bg: Rgb): "#181a20" | "#ffffff" {
+  return relativeLuminance(bg) > 0.4 ? "#181a20" : "#ffffff";
+}

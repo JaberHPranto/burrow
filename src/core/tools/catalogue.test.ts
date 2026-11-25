@@ -13,7 +13,11 @@ describe("tool catalogue", () => {
   it("finds tools by name and keyword", () => {
     expect(registry.search("json")[0]?.id).toBe("json-formatter");
     expect(registry.search("eaddrinuse")[0]?.id).toBe("port-inspector");
-    expect(registry.search("wcag")[0]?.id).toBe("contrast-checker");
+    expect(registry.search("todo")[0]?.id).toBe("tasks");
+    expect(registry.search("annotate")[0]?.id).toBe("screenshot");
+    expect(registry.search("ocr")[0]?.id).toBe("ocr");
+    expect(registry.search("eyedropper")[0]?.id).toBe("color-picker");
+    expect(registry.search("openapi")[0]?.id).toBe("schema-mock");
   });
 });
 
@@ -22,7 +26,8 @@ describe("clipboard suggestions", () => {
 
   it("routes clipboard content to the right tool", () => {
     expect(top('{"name": "burrow"}')).toBe("json-formatter");
-    expect(top("#88CCA6")).toBe("contrast-checker");
+    expect(top("#88CCA6")).toBe("color-picker");
+    expect(top('{"type":"object","properties":{"email":{"type":"string"}}}')).toBe("schema-mock");
     expect(top('<svg viewBox="0 0 1 1"><path d="M0 0"/></svg>')).toBe("svg-tools");
     expect(top("DATABASE_URL=postgres://x\nAPI_KEY=abc")).toBe("env-diff");
     expect(top("# Notes\n\n- one\n- two")).toBe("markdown-viewer");

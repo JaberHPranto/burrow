@@ -19,6 +19,11 @@ export interface ToolProps {
    * suggestion. Tools that take text input should seed their input with it.
    */
   initialInput?: string;
+  /**
+   * Start the tool's main action immediately — set when opened with
+   * `burrow --tool <id> --run` (hotkeys, tray). E.g. the screenshot tool captures.
+   */
+  autoRun?: boolean;
 }
 
 /** Result of a clipboard detector: how confident, and what to call the action. */
@@ -52,7 +57,7 @@ export const defineTool = (definition: ToolDefinition): ToolDefinition => defini
 export const CATEGORY_LABELS: Record<ToolCategory, string> = {
   capture: "Capture",
   clipboard: "Clipboard",
-  notes: "Notes & docs",
+  notes: "Notes & tasks",
   data: "Data",
   generators: "Generators",
   frontend: "Frontend",

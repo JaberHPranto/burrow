@@ -22,4 +22,15 @@ export const clipboard = {
     }
     await navigator.clipboard.writeText(text);
   },
+
+  /** Copy a PNG image. */
+  async writeImage(png: Uint8Array): Promise<void> {
+    if (isTauri()) {
+      const { writeImage } = await import("@tauri-apps/plugin-clipboard-manager");
+      await writeImage(png);
+      return;
+    }
+    const blob = new Blob([new Uint8Array(png)], { type: "image/png" }); // copy → plain ArrayBuffer for Blob typing
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+  },
 };

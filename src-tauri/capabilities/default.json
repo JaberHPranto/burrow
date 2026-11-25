@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permissions for the main Burrow window. Keep this list minimal — add only what a tool needs.",
+  "description": "Permissions for the main Burrow window. Keep this list minimal \u2014 add only what a tool needs.",
   "windows": ["main"],
   "permissions": [
     "core:default",
@@ -12,6 +12,8 @@
     "core:window:allow-start-dragging",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
-    "store:default"
+    "store:default",
+    "core:window:allow-center",
+    "clipboard-manager:allow-write-image"
   ]
 }

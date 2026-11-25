@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { contrastRatio, looksLikeColor, parseColor, rgbToHsl, toHex } from "./color";
+import {
+  colorFormats,
+  contrastRatio,
+  looksLikeColor,
+  parseColor,
+  readableOn,
+  rgbToHsl,
+  rgbToOklch,
+  toHex,
+} from "./color";
 
 describe("parseColor", () => {
   it("parses hex forms", () => {
@@ -42,5 +51,31 @@ describe("helpers", () => {
     expect(looksLikeColor("rgb(1, 2, 3)")).toBe(true);
     expect(looksLikeColor("fff")).toBe(false); // too ambiguous without a #
     expect(looksLikeColor("some text")).toBe(false);
+  });
+});
+
+describe("oklch & formats", () => {
+  it("matches reference OKLCH values", () => {
+    const red = rgbToOklch({ r: 255, g: 0, b: 0 });
+    expect(red.l).toBeCloseTo(0.628, 3);
+    expect(red.c).toBeCloseTo(0.2577, 3);
+    expect(red.h).toBeCloseTo(29.23, 1);
+    const white = rgbToOklch({ r: 255, g: 255, b: 255 });
+    expect(white.l).toBeCloseTo(1, 3);
+    expect(white.c).toBeCloseTo(0, 3);
+  });
+
+  it("formats every notation", () => {
+    expect(colorFormats({ r: 136, g: 204, b: 166 })).toEqual({
+      hex: "#88cca6",
+      rgb: "rgb(136 204 166)",
+      hsl: "hsl(146 40% 67%)",
+      oklch: expect.stringMatching(/^oklch\(\d+\.\d% 0\.\d{3} \d+\.\d\)$/),
+    });
+  });
+
+  it("picks readable text colours", () => {
+    expect(readableOn({ r: 248, g: 225, b: 146 })).toBe("#181a20");
+    expect(readableOn({ r: 24, g: 26, b: 32 })).toBe("#ffffff");
   });
 });

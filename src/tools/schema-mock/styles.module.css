@@ -1,0 +1,22 @@
+.method {
+  width: 100px;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.url {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.placeholder {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+}

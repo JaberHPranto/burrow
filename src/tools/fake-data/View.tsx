@@ -1,3 +1,4 @@
+import { randomSeed as newSeed } from "@/core/fake/fake";
 import { Button, CodeBlock, CopyButton, Field, Row, Select, Slider, Stack } from "@/design";
 import { Dices } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -12,8 +13,6 @@ const DEFAULT_COUNT: Record<FakeKind, number> = {
   emails: 10,
   uuids: 10,
 };
-
-const newSeed = () => Math.floor(Math.random() * 2 ** 31);
 
 export default function FakeData() {
   const [kind, setKind] = useState<FakeKind>("paragraphs");

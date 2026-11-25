@@ -1,5 +1,5 @@
 //! Command-line actions. Bind these to GNOME custom shortcuts, e.g.
-//! `burrow --toggle` (launcher) or `burrow --tool json-formatter`.
+//! `burrow --toggle`, `burrow --tool json-formatter`, `burrow --tool screenshot --run`.
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Action {
@@ -7,23 +7,25 @@ pub enum Action {
     Background,
     /// Show the launcher if hidden, hide it if visible.
     Toggle,
-    /// Show the launcher and open a tool by id.
-    OpenTool(String),
+    /// Open a tool by id. `run` asks it to start its main action immediately
+    /// (capture a screenshot, pick a colour, …) instead of waiting for a click.
+    OpenTool { id: String, run: bool },
 }
 
 pub fn parse(argv: &[String]) -> Action {
+    let run = argv.iter().any(|a| a == "--run");
     let mut args = argv.iter().skip(1);
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--toggle" | "-t" => return Action::Toggle,
             "--tool" => {
                 if let Some(id) = args.next().filter(|id| is_valid_tool_id(id)) {
-                    return Action::OpenTool(id.clone());
+                    return Action::OpenTool { id: id.clone(), run };
                 }
             }
             other => {
                 if let Some(id) = other.strip_prefix("--tool=").filter(|id| is_valid_tool_id(id)) {
-                    return Action::OpenTool(id.to_owned());
+                    return Action::OpenTool { id: id.to_owned(), run };
                 }
             }
         }
@@ -46,12 +48,18 @@ mod tests {
         std::iter::once("burrow").chain(args.iter().copied()).map(String::from).collect()
     }
 
+    fn open(id: &str, run: bool) -> Action {
+        Action::OpenTool { id: id.into(), run }
+    }
+
     #[test]
     fn parses_actions() {
         assert_eq!(parse(&argv(&[])), Action::Background);
         assert_eq!(parse(&argv(&["--toggle"])), Action::Toggle);
-        assert_eq!(parse(&argv(&["--tool", "json-formatter"])), Action::OpenTool("json-formatter".into()));
-        assert_eq!(parse(&argv(&["--tool=port-inspector"])), Action::OpenTool("port-inspector".into()));
+        assert_eq!(parse(&argv(&["--tool", "json-formatter"])), open("json-formatter", false));
+        assert_eq!(parse(&argv(&["--tool=port-inspector"])), open("port-inspector", false));
+        assert_eq!(parse(&argv(&["--tool", "screenshot", "--run"])), open("screenshot", true));
+        assert_eq!(parse(&argv(&["--run", "--tool", "ocr"])), open("ocr", true));
     }
 
     #[test]

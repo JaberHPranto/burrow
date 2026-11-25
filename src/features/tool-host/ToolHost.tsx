@@ -8,10 +8,11 @@ import styles from "./ToolHost.module.css";
 interface ToolHostProps {
   id: string;
   input?: string;
+  autoRun?: boolean;
 }
 
 /** Frame around every tool: draggable header with back button, then the lazy tool body. */
-export function ToolHost({ id, input }: ToolHostProps) {
+export function ToolHost({ id, input, autoRun }: ToolHostProps) {
   const goHome = useApp((s) => s.goHome);
   const tool = registry.get(id);
 
@@ -46,7 +47,7 @@ export function ToolHost({ id, input }: ToolHostProps) {
       <main className={styles.body}>
         <ToolErrorBoundary key={id}>
           <Suspense fallback={null}>
-            <Body initialInput={input} />
+            <Body initialInput={input} autoRun={autoRun} />
           </Suspense>
         </ToolErrorBoundary>
       </main>

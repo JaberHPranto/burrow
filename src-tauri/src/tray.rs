@@ -10,11 +10,14 @@ use tauri::{
 
 use crate::window;
 
-/// Tray quick actions: (menu id, label, tool id). Tool ids must exist in `src/tools`.
-const QUICK_TOOLS: &[(&str, &str, &str)] = &[
-    ("tool:json", "Format JSON", "json-formatter"),
-    ("tool:notes", "Quick notes", "quick-notes"),
-    ("tool:ports", "Port inspector", "port-inspector"),
+/// Tray quick actions: (menu id, label, tool id, run immediately).
+/// Tool ids must exist in `src/tools`.
+const QUICK_TOOLS: &[(&str, &str, &str, bool)] = &[
+    ("tool:screenshot", "Take screenshot", "screenshot", true),
+    ("tool:ocr", "Grab text (OCR)", "ocr", true),
+    ("tool:color", "Pick colour", "color-picker", true),
+    ("tool:tasks", "Tasks", "tasks", false),
+    ("tool:notes", "Quick notes", "quick-notes", false),
 ];
 
 pub fn create(app: &AppHandle) -> tauri::Result<()> {
@@ -25,7 +28,7 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
 
     let quick = QUICK_TOOLS
         .iter()
-        .map(|(id, label, _)| MenuItem::with_id(app, *id, *label, true, None::<&str>))
+        .map(|(id, label, _, _)| MenuItem::with_id(app, *id, *label, true, None::<&str>))
         .collect::<Result<Vec<_>, _>>()?;
 
     let mut items: Vec<&dyn tauri::menu::IsMenuItem<tauri::Wry>> = vec![&open, &sep];
@@ -42,8 +45,8 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
             "open" => window::show(app),
             "quit" => app.exit(0),
             id => {
-                if let Some((_, _, tool)) = QUICK_TOOLS.iter().find(|(menu_id, _, _)| *menu_id == id) {
-                    window::open_tool(app, tool);
+                if let Some((_, _, tool, run)) = QUICK_TOOLS.iter().find(|(menu_id, ..)| *menu_id == id) {
+                    window::open_tool(app, tool, *run);
                 }
             }
         })

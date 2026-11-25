@@ -1,0 +1,33 @@
+.lang {
+  width: 170px;
+  height: 34px;
+}
+
+.split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: var(--space-3);
+}
+.split > * {
+  min-height: 0;
+}
+
+.preview {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}

@@ -110,7 +110,7 @@ export function Launcher({ onClose }: { onClose: () => void }) {
               key={tool.id}
               tone={tool.tone}
               icon={tool.icon}
-              onClick={() => openTool(tool.id, clipText)}
+              onClick={() => openTool(tool.id, { input: clipText })}
             >
               {match.label}
             </Chip>

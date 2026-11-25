@@ -1,6 +1,8 @@
 import { isTauri } from "./runtime";
 
 /** Event names emitted by Rust — mirror of `src-tauri/src/window.rs`. */
+export type { OpenToolRequest } from "./commands";
+
 export const EVENTS = {
   openTool: "burrow://open-tool",
   shown: "burrow://shown",

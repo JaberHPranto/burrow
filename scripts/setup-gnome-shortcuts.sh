@@ -8,6 +8,7 @@
 # Usage:  scripts/setup-gnome-shortcuts.sh            (uses `burrow` from PATH)
 #         BURROW_BIN=/path/to/burrow scripts/setup-gnome-shortcuts.sh
 # Safe to re-run: existing Burrow shortcuts are updated, others are untouched.
+# (Older versions also bound Ctrl+Alt+J to the JSON formatter; that entry is left as-is.)
 set -euo pipefail
 
 BIN="${BURROW_BIN:-$(command -v burrow || true)}"
@@ -22,10 +23,13 @@ BASE="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
 
 # slug | name | command | binding
 # Super+Space is avoided on purpose: GNOME uses it to switch input sources.
+# Ctrl+Alt+T is avoided too (Ubuntu's terminal). `--run` starts the capture immediately.
 SHORTCUTS=(
   "burrow-launcher|Burrow: launcher|$BIN --toggle|<Control><Alt>space"
+  "burrow-screenshot|Burrow: screenshot|$BIN --tool screenshot --run|<Control><Alt>s"
+  "burrow-ocr|Burrow: grab text (OCR)|$BIN --tool ocr --run|<Control><Alt>o"
+  "burrow-color|Burrow: pick colour|$BIN --tool color-picker --run|<Control><Alt>c"
   "burrow-notes|Burrow: quick notes|$BIN --tool quick-notes|<Control><Alt>n"
-  "burrow-json|Burrow: JSON formatter|$BIN --tool json-formatter|<Control><Alt>j"
 )
 
 current="$(gsettings get "$SCHEMA" custom-keybindings)"

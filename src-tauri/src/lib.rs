@@ -4,7 +4,7 @@
 //! - `cli`      — parses `burrow --toggle` / `burrow --tool <id>` (used by GNOME hotkeys)
 //! - `window`   — show / hide / toggle the launcher window, emit navigation events
 //! - `tray`     — system tray icon + menu
-//! - `commands` — `#[tauri::command]` handlers, one module per tool that needs Rust
+//! - `commands` — `#[tauri::command]` handlers, one module per native capability
 
 mod cli;
 mod commands;
@@ -25,12 +25,19 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_dialog::init())
         .manage(window::PendingTool::default())
+        .manage(window::BlurGuard::default())
         .invoke_handler(tauri::generate_handler![
             commands::ports::list_listening_ports,
             commands::ports::kill_process,
             commands::app::hide_launcher,
             commands::app::take_pending_tool,
+            commands::capture::capture_screenshot,
+            commands::capture::pick_color,
+            commands::ocr::ocr_status,
+            commands::ocr::ocr_image,
+            commands::files::save_png,
         ])
         .setup(|app| {
             tray::create(app.handle())?;
@@ -39,7 +46,7 @@ pub fn run() {
             match cli::parse(&std::env::args().collect::<Vec<_>>()) {
                 Action::Background => {}
                 Action::Toggle => window::show(app.handle()),
-                Action::OpenTool(id) => window::open_tool_on_startup(app.handle(), &id),
+                Action::OpenTool { id, run } => window::open_tool_on_startup(app.handle(), &id, run),
             }
             // Keep a handle around so the window is never dropped.
             let _ = app.get_webview_window(window::MAIN);
