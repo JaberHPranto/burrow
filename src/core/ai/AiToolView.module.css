@@ -64,8 +64,6 @@
   flex: 1;
   min-height: 0;
   resize: none;
-}
-.proseInput {
   font-family: var(--font-body);
   font-size: var(--text-md);
   line-height: 1.6;

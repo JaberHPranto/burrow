@@ -34,7 +34,7 @@ const ACTIONS: &[Action] = &[
     Action { id: "ai-grammar", name: "Burrow: fix grammar of clipboard", args: &["--tool", "ai-grammar", "--run"] },
     Action { id: "ai-summarize", name: "Burrow: summarise clipboard", args: &["--tool", "ai-summarize", "--run"] },
     Action { id: "ai-translate", name: "Burrow: translate clipboard", args: &["--tool", "ai-translate", "--run"] },
-    Action { id: "ai-explain", name: "Burrow: explain clipboard (code or error)", args: &["--tool", "ai-explain", "--run"] },
+    Action { id: "ai-message", name: "Burrow: write a message", args: &["--tool", "ai-message"] },
     Action { id: "tasks", name: "Burrow: tasks", args: &["--tool", "tasks"] },
     Action { id: "notes", name: "Burrow: quick notes", args: &["--tool", "quick-notes"] },
     Action { id: "settings", name: "Burrow: settings", args: &["--tool", "settings"] },

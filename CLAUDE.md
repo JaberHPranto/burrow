@@ -35,7 +35,7 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
 | `src/core/handoff.ts` | Pass data between tools | Key = `"<receiving-tool>:<what>"`, consumed once with `take`. |
 | `src/core/platform/window.ts` | `useWindowSize(w, h, active)`, `overlayWindow` | Tools that need room (editor, schema mock) grow the window; size is restored on unmount. `overlayWindow` enters/exits fullscreen for region selection. |
 | `src/core/deps/` | Optional system packages: catalogue, `reportFor` badge logic, status store | When a tool uses a system package, add it to `catalog.ts` + `commands/deps.rs` and list it in the tool's `requires`. Update the README dependency table. |
-| `src/core/ai/` | AI tools' shared pieces: `resolveAiTarget`, `AiPreset`, `useAiStream`, `AiToolView` | An AI tool is a preset: `logic.ts` exports `preset: AiPreset` (prompt via `build`, options, output format) + a one-line View rendering `<AiToolView preset>`. Wrap user text with `asMaterial()` and end system prompts with `MATERIAL_RULES` (prompt-injection guard). Other tools hand text over with `handoff.put("<ai-tool>:input", { text, run })`. |
+| `src/core/ai/` | AI tools' shared pieces: `resolveAiTarget`, `AiPreset`, `useAiStream`, `AiToolView` | An AI tool is a preset: `logic.ts` exports `preset: AiPreset` (prompt via `build`, options, output format) + a one-line View rendering `<AiToolView preset>`. Wrap user text with `asMaterial()` and end system prompts with `MATERIAL_RULES` (prompt-injection guard), except where the input *is* the user's directions (Write a message follows hints in its notes). `prefillFromClipboard: false` for tools that start from scratch. Other tools hand text over with `handoff.put("<ai-tool>:input", { text, run })`. |
 | `src/core/capture/` | Region selection overlay (`useSnip`), crop/decode helpers | Shared by Screenshot and OCR. Geometry is pure and tested. |
 | `src/design/` | Design system | Tools import UI only from `@/design`. No raw colours: use tokens. |
 | `src/features/` | Launcher, ToolHost, Settings | App chrome, not tools. Settings is registered as tool `settings` (category `app`) so it's searchable and opens via `--tool settings`; its input picks a section (`"hotkeys"`, `"ai"`…). Add a section: a component in `features/settings/sections/` + one entry in `SECTIONS`. |
@@ -150,6 +150,6 @@ draw it in `render.ts`, add a tool button in `View.tsx`.
 - Phase 2 ✅: screenshot + annotation editor, OCR, colour picker, tasks, schema mock
 - Phase 3 ✅: Settings, clipboard history (Shell extension), emoji picker (emojibase-data, lazy chunk;
   `support.ts` hides emoji newer than the system font can draw)
-- Phase 4 ✅: AI tools with BYOK — summarise, fix grammar, rewrite, explain, translate (presets over `core/ai`),
+- Phase 4 ✅: AI tools with BYOK — summarise, fix grammar, rewrite, write a message, translate (presets over `core/ai`),
   streaming from Rust, OCR → AI hand-off, AI hotkeys that run on the clipboard
 - Next: more AI presets (commit message, regex, SQL), multi-turn chat

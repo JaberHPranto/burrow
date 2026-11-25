@@ -49,12 +49,13 @@ Bring your own key: set up OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-c
 | **Summarise** | Key points, a one-liner or a detailed summary of any text |
 | **Fix grammar** | Fixes spelling, grammar and punctuation; keeps your voice, language and formatting. Only mistakes, or mistakes + polish |
 | **Rewrite** | Clearer, shorter, friendlier, more formal or more casual; “Use as input” to refine again |
-| **Explain code or error** | Paste a stack trace, compiler error, log, regex or function: what it means and how to fix it |
+| **Write a message** | Jot rough notes, get a natural, human-sounding message for a Slack channel, a WhatsApp group or a DM. Pick the tone, length, emoji and language (English, Bangla or Banglish) |
 | **Translate** | Between English, Bangla and 16 other languages, natural or literal |
 
-Each opens with what's on your clipboard, streams the reply as it's written (`Esc` stops it), and runs
-with `Ctrl+Enter`. After OCR, **Ask AI** sends the text straight to Summarise, Translate or Explain.
-Settings → Hotkeys can bind “fix grammar / summarise / translate / explain the clipboard” to one key.
+Each streams the reply as it's written (`Esc` stops it) and runs with `Ctrl+Enter`; all but Write a
+message start with what's on your clipboard. Not happy with a message? **Retry** gives another take.
+After OCR, **Ask AI** sends the text straight to Summarise or Translate.
+Settings → Hotkeys can bind “fix grammar / summarise / translate the clipboard” or “write a message” to one key.
 Requests go from Burrow directly to your provider; API keys stay in the system keyring and never reach the UI.
 
 ### Developer tools
@@ -73,7 +74,7 @@ Requests go from Burrow directly to your provider; API keys stay in the system k
 **Clipboard suggestions.** When the launcher opens, Burrow looks at what you've copied and puts the
 matching tool on top: JSON → JSON formatter, JSON Schema / OpenAPI → Schema mock, a colour (`#hex`,
 `rgb()`, `hsl()`) → Colour picker, `<svg>` → SVG optimizer, `KEY=value` lines → .env diff,
-Markdown → Markdown viewer, a stack trace or error → Explain, text in another script (Bangla…) →
+Markdown → Markdown viewer, text in another script (Bangla…) →
 Translate, a long article → Summarise. AI suggestions appear once a provider is set up. Turn suggestions
 off in Settings → General.
 
@@ -121,7 +122,7 @@ If you installed the extension before pinning existed, Settings offers an **Upda
 | **1 ✅** | Launcher, clipboard suggestions, core dev tools | No special permissions needed |
 | **2 ✅** | Screenshot + annotation editor, OCR, colour picker, tasks, schema mock | Silent capture via `gnome-screenshot` (portal fallback); OCR via local Tesseract |
 | **3 ✅** | Settings, clipboard history, emoji picker | Clipboard history uses a small companion Shell extension |
-| **4 ✅** | AI: summarise, fix grammar, rewrite, explain code/error, translate, OCR → AI | Bring your own key (OpenAI, Anthropic, OpenRouter, Ollama, OpenAI-compatible); streaming replies |
+| **4 ✅** | AI: summarise, fix grammar, rewrite, write a message, translate, OCR → AI | Bring your own key (OpenAI, Anthropic, OpenRouter, Ollama, OpenAI-compatible); streaming replies |
 | **Next** | More AI tools (commit messages, regex, SQL), a chat with history | Each AI tool is a small preset over the shared view |
 
 ---

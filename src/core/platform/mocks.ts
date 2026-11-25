@@ -93,7 +93,7 @@ const hotkeys: HotkeysState = {
     { id: "ai-grammar", name: "Burrow: fix grammar of clipboard", binding: null },
     { id: "ai-summarize", name: "Burrow: summarise clipboard", binding: null },
     { id: "ai-translate", name: "Burrow: translate clipboard", binding: null },
-    { id: "ai-explain", name: "Burrow: explain clipboard (code or error)", binding: null },
+    { id: "ai-message", name: "Burrow: write a message", binding: null },
     { id: "tasks", name: "Burrow: tasks", binding: null },
     { id: "notes", name: "Burrow: quick notes", binding: "<Control><Alt>n" },
     { id: "settings", name: "Burrow: settings", binding: null },

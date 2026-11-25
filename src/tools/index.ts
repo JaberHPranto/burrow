@@ -5,8 +5,8 @@
  */
 import type { ToolDefinition } from "@/core/tools/types";
 import settings from "@/features/settings/definition";
-import aiExplain from "./ai-explain";
 import aiGrammar from "./ai-grammar";
+import aiMessage from "./ai-message";
 import aiRewrite from "./ai-rewrite";
 import aiSummarize from "./ai-summarize";
 import aiTranslate from "./ai-translate";
@@ -55,7 +55,7 @@ export const tools: readonly ToolDefinition[] = [
   aiSummarize,
   aiGrammar,
   aiRewrite,
-  aiExplain,
+  aiMessage,
   aiTranslate,
   // app
   settings,

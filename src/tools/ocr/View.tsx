@@ -23,7 +23,7 @@ import {
   Tag,
   TextArea,
 } from "@/design";
-import { Camera, Languages, MessageCircleQuestion, ScrollText } from "lucide-react";
+import { Camera, Languages, ScrollText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type Layout, cleanOcrText, languageOptions, wordCount } from "./logic";
 import styles from "./styles.module.css";
@@ -32,7 +32,6 @@ import styles from "./styles.module.css";
 const AI_ACTIONS = [
   { tool: "ai-summarize", label: "Summarise", icon: ScrollText },
   { tool: "ai-translate", label: "Translate", icon: Languages },
-  { tool: "ai-explain", label: "Explain", icon: MessageCircleQuestion },
 ] as const;
 
 function AskAi({ text }: { text: string }) {

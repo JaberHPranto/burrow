@@ -63,8 +63,8 @@ export interface AiPreset {
   inputLabel: string;
   placeholder: string;
   options: readonly AiOption[];
-  /** "code" uses a monospace input (code, logs); default is prose. */
-  inputKind?: "prose" | "code";
+  /** Start with the clipboard's text when opened empty (default true). */
+  prefillFromClipboard?: boolean;
   /** "markdown" renders the reply; "text" shows it verbatim (for text you'll paste back). */
   output: "markdown" | "text";
   /** Offer "Use as input" (useful for rewrites you want to refine further). */

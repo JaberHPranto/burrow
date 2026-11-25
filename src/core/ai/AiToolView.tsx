@@ -71,7 +71,7 @@ export function AiToolView({ preset, initialInput, autoRun }: Props) {
   // Prefill from the clipboard once, on open, if nothing else gave us input.
   // biome-ignore lint/correctness/useExhaustiveDependencies: run once on open
   useEffect(() => {
-    if (input) return;
+    if (input || preset.prefillFromClipboard === false) return;
     let alive = true;
     void clipboard
       .readText()
@@ -104,6 +104,17 @@ export function AiToolView({ preset, initialInput, autoRun }: Props) {
     autoStarted.current = true;
     if (target.ok) run();
   }, [settingsLoaded, incoming, autoRun, input, target, run]);
+
+  // Ctrl+Enter runs from anywhere in the tool (the text box, after clicking an option…).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || !(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      run();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [run]);
 
   // Esc stops a running reply instead of leaving the tool.
   useEffect(() => {
@@ -146,19 +157,13 @@ export function AiToolView({ preset, initialInput, autoRun }: Props) {
           </header>
           <TextArea
             ref={inputRef}
-            className={cx(styles.input, preset.inputKind !== "code" && styles.proseInput)}
+            className={styles.input}
             value={input}
             placeholder={preset.placeholder}
             spellCheck={false}
             onChange={(e) => {
               setInput(e.target.value);
               setFromClipboard(false);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                e.preventDefault();
-                run();
-              }
             }}
             autoFocus
           />
