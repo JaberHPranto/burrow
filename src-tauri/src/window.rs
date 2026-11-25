@@ -31,13 +31,57 @@ pub struct PendingTool(pub Mutex<Option<OpenToolRequest>>);
 #[derive(Default)]
 pub struct BlurGuard(AtomicBool);
 
-/// User preference (Settings → General): hide the launcher when it loses focus.
-pub struct HideOnBlur(pub AtomicBool);
+/// How the window behaves (Settings → General, or the pin button).
+/// Mirrored by `WindowMode` in `src/core/platform/commands.ts`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum WindowMode {
+    /// Spotlight-style: hides when it loses focus.
+    #[default]
+    Launcher,
+    /// Stays open and above other windows.
+    Pinned,
+    /// Stays open like a regular window; shows in the taskbar and Alt+Tab.
+    Normal,
+}
 
-impl Default for HideOnBlur {
-    fn default() -> Self {
-        Self(AtomicBool::new(true))
+#[derive(Default)]
+pub struct WindowModeState(pub Mutex<WindowMode>);
+
+pub fn window_mode(app: &AppHandle) -> WindowMode {
+    app.state::<WindowModeState>().0.lock().map(|m| *m).unwrap_or_default()
+}
+
+/// Apply a mode to the window. Returns whether "on top" is in effect
+/// (false on Wayland without the GNOME extension; see `shell_helper`).
+pub async fn apply_mode(app: &AppHandle, mode: WindowMode) -> bool {
+    if let Ok(mut current) = app.state::<WindowModeState>().0.lock() {
+        *current = mode;
     }
+    if let Some(w) = main_window(app) {
+        // Works on X11; GNOME on Wayland ignores it, hence the Shell helper below.
+        let _ = w.set_always_on_top(mode != WindowMode::Normal);
+        let _ = w.set_skip_taskbar(mode != WindowMode::Normal);
+    }
+    if !crate::shell_helper::is_wayland() {
+        return true;
+    }
+    let pinned = mode == WindowMode::Pinned;
+    // Visible window: pin/unpin it now. Hidden: `show` re-pins when it appears.
+    crate::shell_helper::set_above(pinned).await;
+    !pinned || crate::shell_helper::available().await
+}
+
+/// A hidden Wayland window is destroyed and recreated on show, so the Shell
+/// forgets "above". Re-apply it once the window is mapped.
+fn repin_after_show(app: &AppHandle) {
+    if window_mode(app) != WindowMode::Pinned || !crate::shell_helper::is_wayland() {
+        return;
+    }
+    tauri::async_runtime::spawn(async {
+        tokio::time::sleep(std::time::Duration::from_millis(150)).await;
+        crate::shell_helper::set_above(true).await;
+    });
 }
 
 /// Suppress hide-on-blur for the lifetime of the returned guard.
@@ -66,6 +110,7 @@ pub fn show(app: &AppHandle) {
         let _ = w.show();
         let _ = w.set_focus();
         let _ = app.emit(EVENT_SHOWN, ());
+        repin_after_show(app);
     }
 }
 
@@ -109,7 +154,7 @@ pub fn handle_action(app: &AppHandle, action: Action) {
     }
 }
 
-/// Hide when the window loses focus, like a launcher should.
+/// Hide when the window loses focus, like a launcher should (Launcher mode only).
 /// Debug builds skip this so devtools stay usable.
 pub fn install_blur_to_hide(app: &AppHandle) {
     if cfg!(debug_assertions) {
@@ -119,12 +164,26 @@ pub fn install_blur_to_hide(app: &AppHandle) {
         let handle = app.clone();
         w.on_window_event(move |event| {
             let suppressed = handle.state::<BlurGuard>().0.load(Ordering::SeqCst)
-                || !handle.state::<HideOnBlur>().0.load(Ordering::SeqCst);
+                || window_mode(&handle) != WindowMode::Launcher;
             if let WindowEvent::Focused(false) = event {
                 if !suppressed {
                     hide(&handle);
                 }
             }
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::WindowMode;
+
+    #[test]
+    fn window_mode_accepts_only_known_values() {
+        let parse = |s: &str| serde_json::from_str::<WindowMode>(s).ok();
+        assert_eq!(parse(r#""pinned""#), Some(WindowMode::Pinned));
+        assert_eq!(parse(r#""launcher""#), Some(WindowMode::Launcher));
+        assert_eq!(parse(r#""normal""#), Some(WindowMode::Normal));
+        assert_eq!(parse(r#""fullscreen""#), None);
     }
 }

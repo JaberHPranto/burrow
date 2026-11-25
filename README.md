@@ -71,7 +71,7 @@ Open it from the gear in the launcher footer, by searching “settings”, from 
 
 | Section | What you can change |
 |---|---|
-| **General** | Start on login, hide when unfocused, clipboard suggestions |
+| **General** | Start on login; window behaviour (**Launcher** hides when you click away, **Pinned** stays open and on top, **Normal** behaves like a regular window); clipboard suggestions |
 | **Appearance** | Dark / light / follow the system; show or hide the bunny |
 | **Hotkeys** | Record a global shortcut for the launcher, screenshot, OCR, colour picker, clipboard history, emoji picker, tasks, notes or settings. Burrow saves them as GNOME custom shortcuts, warns about clashes and refuses GNOME's own (`Ctrl+Alt+T`…) |
 | **AI providers** | API keys for OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-compatible URL; default provider and model; “Test connection” lists the models. Keys live in the **system keyring** (GNOME Keyring), never in Burrow's files, and are never sent back to the UI |
@@ -85,6 +85,14 @@ Wayland doesn't let apps watch the clipboard. Burrow ships a tiny GNOME Shell ex
 and makes no network calls; copies marked as coming from a password manager are dropped.
 Install it from **Settings → Clipboard → Install extension**, then **log out and back in once**.
 Without the extension, Burrow still records whatever is on the clipboard each time you open the launcher.
+
+### Pinning the window
+
+The pin button (launcher footer and every tool's header) keeps Burrow open while you work in other windows.
+GNOME on Wayland doesn't let apps put themselves on top, so the same extension does that part: it lets
+Burrow ask GNOME Shell to keep its window above others. Without it, a pinned Burrow still stays open; press
+`Alt+Space` on it and choose **Always on Top**. (On X11 sessions this works without the extension.)
+If you installed the extension before pinning existed, Settings offers an **Update**, then log out and back in once.
 
 ## Roadmap
 
@@ -123,7 +131,7 @@ better with it) and a banner inside the tool with a copy-ready install command a
 | `tesseract-ocr-ben` | OCR capture | Optional | No Bangla recognition (English still works) | `sudo apt install tesseract-ocr-ben` |
 | `gsettings` (GNOME) | Settings → Hotkeys, `scripts/setup-gnome-shortcuts.sh` | For hotkeys | Can't register hotkeys | Part of GNOME |
 | GNOME Keyring (Secret Service) | Settings → AI providers | For AI keys | Can't save API keys | Running by default on Ubuntu |
-| Burrow clipboard extension | Clipboard history (background) | Optional | History only updates when you open the launcher | Settings → Clipboard → Install |
+| Burrow GNOME extension | Clipboard history (background), keeping a pinned window on top | Optional | History only updates when you open the launcher; pinned windows stay open but not on top | Settings → Clipboard → Install |
 
 The emoji picker uses the system emoji font (`fonts-noto-color-emoji`, installed by default on Ubuntu)
 and hides emoji the font can't draw yet. Every other tool needs nothing beyond the app itself.

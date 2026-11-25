@@ -1,6 +1,7 @@
 import { useApp } from "@/app/store";
 import { registry } from "@/core/tools/registry";
 import { EmptyState, IconButton, Tile } from "@/design";
+import { PinButton } from "@/features/window/PinButton";
 import { ArrowLeft } from "lucide-react";
 import { Component, type ReactNode, Suspense, useEffect } from "react";
 import { DependencyBanner } from "./DependencyBanner";
@@ -44,6 +45,7 @@ export function ToolHost({ id, input, autoRun }: ToolHostProps) {
           <h1 className={styles.title}>{tool.name}</h1>
           <p className={styles.desc}>{tool.description}</p>
         </div>
+        <PinButton />
       </header>
       <DependencyBanner requires={tool.requires} />
       <main className={styles.body}>

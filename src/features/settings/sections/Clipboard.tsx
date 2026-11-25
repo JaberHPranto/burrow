@@ -12,6 +12,7 @@ function bridgeLabel(s: ClipboardBridgeStatus): {
   text: string;
   tone: "mint" | "butter" | "coral";
 } {
+  if (s.outdated) return { text: "Update available", tone: "butter" };
   if (s.lastSeenSecsAgo !== null) return { text: "Connected", tone: "mint" };
   if (s.installed && s.enabled)
     return { text: "Installed — log out and back in to start it", tone: "butter" };
@@ -103,11 +104,16 @@ export function Clipboard() {
         </div>
         <p className={styles.rowHelp}>
           GNOME doesn't let apps watch the clipboard in the background, so Burrow uses a tiny GNOME
-          Shell extension that forwards each copy to Burrow (nothing else: no storage, no network).
-          Without it, Burrow still saves whatever is on your clipboard each time you open the
-          launcher.
+          Shell extension that forwards each copy to Burrow (no storage, no network). The same
+          extension keeps Burrow on top when you pin it. Without it, Burrow still saves whatever is
+          on your clipboard each time you open the launcher.
         </p>
         <div className={styles.inline}>
+          {bridge?.outdated && (
+            <Button size="sm" variant="primary" icon={Download} onClick={install} disabled={busy}>
+              Update extension
+            </Button>
+          )}
           {bridge?.installed ? (
             <Button size="sm" variant="ghost" icon={Trash2} onClick={uninstall}>
               Remove extension

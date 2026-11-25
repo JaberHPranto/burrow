@@ -60,6 +60,8 @@ fn set_enabled_extensions(list: &[String]) -> Result<()> {
 #[serde(rename_all = "camelCase")]
 pub struct BridgeStatus {
     installed: bool,
+    /// Installed, but an older version than this Burrow ships (missing the window helper).
+    outdated: bool,
     enabled: bool,
     /// Seconds since the extension last pushed/pinged, if it has this session.
     last_seen_secs_ago: Option<u64>,
@@ -70,7 +72,13 @@ pub struct BridgeStatus {
 pub async fn clipboard_bridge_status(state: State<'_, Arc<BridgeState>>) -> Result<BridgeStatus> {
     let last = state.last_seen.load(Ordering::Relaxed);
     let now = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
-    let installed = extension_dir()?.join("extension.js").is_file();
+    let dir = extension_dir()?;
+    let installed = dir.join("extension.js").is_file();
+    let installed_version = std::fs::read_to_string(dir.join("metadata.json"))
+        .ok()
+        .and_then(|m| metadata_version(&m))
+        .unwrap_or(0);
+    let outdated = installed && installed_version < metadata_version(ESM_META).unwrap_or(0);
     let (enabled, shell_version) = tauri::async_runtime::spawn_blocking(|| {
         (enabled_extensions().iter().any(|u| u == UUID), shell_major())
     })
@@ -78,13 +86,19 @@ pub async fn clipboard_bridge_status(state: State<'_, Arc<BridgeState>>) -> Resu
     .map_err(|e| Error::Message(e.to_string()))?;
     Ok(BridgeStatus {
         installed,
+        outdated,
         enabled,
         last_seen_secs_ago: (last > 0).then(|| now.saturating_sub(last)),
         shell_version,
     })
 }
 
-/// Write the extension for this GNOME version and mark it enabled.
+/// The `version` field of an extension's metadata.json.
+fn metadata_version(metadata: &str) -> Option<u64> {
+    serde_json::from_str::<serde_json::Value>(metadata).ok()?.get("version")?.as_u64()
+}
+
+/// Write the extension for this GNOME version and mark it enabled (also updates it).
 /// GNOME on Wayland only loads new extensions after logging out and in.
 #[tauri::command]
 pub async fn install_clipboard_extension() -> Result<String> {
@@ -141,5 +155,15 @@ mod tests {
             let v: serde_json::Value = serde_json::from_str(meta).unwrap();
             assert_eq!(v["uuid"], UUID);
         }
+        // Both variants must carry the same version so update detection works.
+        assert_eq!(metadata_version(LEGACY_META), metadata_version(ESM_META));
+        assert!(LEGACY_JS.contains("SetAbove") && ESM_JS.contains("SetAbove"));
+    }
+
+    #[test]
+    fn reads_metadata_version() {
+        assert_eq!(metadata_version(r#"{"uuid":"x","version":2}"#), Some(2));
+        assert_eq!(metadata_version(r#"{"uuid":"x"}"#), None);
+        assert_eq!(metadata_version("not json"), None);
     }
 }

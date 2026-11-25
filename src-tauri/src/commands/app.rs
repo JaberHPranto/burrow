@@ -1,10 +1,9 @@
-use std::sync::atomic::Ordering;
 
 use tauri::{AppHandle, Manager, State};
 
 use crate::{
     error::{Error, Result},
-    window::{self, HideOnBlur, OpenToolRequest, PendingTool},
+    window::{self, OpenToolRequest, PendingTool, WindowMode},
 };
 
 /// Hide the launcher (Esc on the home screen).
@@ -19,10 +18,18 @@ pub fn take_pending_tool(pending: State<'_, PendingTool>) -> Option<OpenToolRequ
     pending.0.lock().ok().and_then(|mut p| p.take())
 }
 
-/// Settings → General: hide the launcher when it loses focus (release builds).
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WindowModeResult {
+    /// False when Pinned can't keep the window on top (Wayland without the extension).
+    keep_above: bool,
+}
+
+/// Settings → General / pin button: launcher, pinned or normal window.
+/// The mode is an enum, so serde rejects anything else from the webview.
 #[tauri::command]
-pub fn set_hide_on_blur(enabled: bool, pref: State<'_, HideOnBlur>) {
-    pref.0.store(enabled, Ordering::SeqCst);
+pub async fn set_window_mode(app: AppHandle, mode: WindowMode) -> WindowModeResult {
+    WindowModeResult { keep_above: window::apply_mode(&app, mode).await }
 }
 
 /// Folder holding `burrow.json` (settings + tool data), shown in Settings → Data.

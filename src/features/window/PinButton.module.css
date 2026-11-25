@@ -1,0 +1,8 @@
+.pinned,
+.pinned:hover {
+  color: var(--mint);
+  background: var(--primary-soft);
+}
+[data-theme="light"] .pinned {
+  color: var(--ink);
+}

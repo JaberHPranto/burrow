@@ -8,6 +8,7 @@ import { registry } from "@/core/tools/registry";
 import { CATEGORY_LABELS, CATEGORY_ORDER, type ToolDefinition } from "@/core/tools/types";
 import { cx } from "@/core/utils/cx";
 import { Bunny, Chip, IconButton, Kbd, Tag, Tile } from "@/design";
+import { PinButton } from "@/features/window/PinButton";
 import { Moon, PackageX, Search, Settings, Sparkles, Sun } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./Launcher.module.css";
@@ -186,6 +187,7 @@ export function Launcher({ onClose }: { onClose: () => void }) {
           label={theme === "dark" ? "Light theme" : "Dark theme"}
           onClick={() => updateSettings({ theme: theme === "dark" ? "light" : "dark" })}
         />
+        <PinButton />
         <IconButton icon={Settings} label="Settings" onClick={() => openTool("settings")} />
       </footer>
     </div>

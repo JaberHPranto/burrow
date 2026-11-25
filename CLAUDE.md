@@ -118,7 +118,12 @@ Use `src/tools/json-formatter/` as the reference implementation.
   never the command line. Keep `ACTIONS` ids in sync with the Settings UI and tool ids.
 - **AI keys:** `commands/ai.rs` stores keys in the Secret Service keyring (service `dev.burrow.app`, user `ai:<provider>`).
   Keys go in, never come back out to the webview. Keyring calls run on a plain thread (`off_runtime`).
-- **Launcher window:** frameless, always on top, skip taskbar, hides on blur in release builds only. Drag regions use `data-tauri-drag-region`.
+- **Launcher window:** frameless, skip taskbar, hides on blur in release builds only. Drag regions use `data-tauri-drag-region`.
+- **Window modes:** `settings.windowMode` = launcher (hide on blur) | pinned (stay open, on top) | normal (regular window,
+  in Alt+Tab). `set_window_mode` → `window::apply_mode`. Wayland ignores an app's always-on-top, so pinning goes through
+  the GNOME extension's window helper (`shell_helper.rs`: `org.gnome.Shell` `/dev/burrow/Shell` `SetAbove(pid, above)`),
+  re-applied after every show because hidden Wayland windows are recreated. `PinButton` (features/window) toggles it.
+  Changing the extension: bump `version` in both metadata.json files so Settings offers an update.
 - **Window chrome:** the OS window is transparent; the app is a rounded card with a shadow inside a 14px gutter
   (`html[data-window="floating"]`, `--window-gutter` = `WINDOW_GUTTER` in `core/platform/window.ts`). Sizes passed to
   `useWindowSize` are content sizes; the gutter is added for you. Fullscreen capture and browser dev use `"flat"`.

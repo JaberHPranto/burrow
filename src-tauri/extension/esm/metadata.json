@@ -1,8 +1,8 @@
 {
   "uuid": "burrow-clipboard@burrow.dev",
-  "name": "Burrow clipboard bridge",
-  "description": "Sends clipboard text to the Burrow app for its clipboard history. Stores nothing itself.",
+  "name": "Burrow helper",
+  "description": "Sends clipboard text to the Burrow app for its clipboard history, and keeps Burrow on top when you pin it. Stores nothing itself.",
   "shell-version": ["45", "46", "47", "48", "49"],
   "url": "https://github.com/JaberHPranto/burrow",
-  "version": 1
+  "version": 2
 }

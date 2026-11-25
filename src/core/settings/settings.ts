@@ -1,5 +1,5 @@
 /** App-wide settings: shape, defaults, and a forgiving merge for stored data. */
-import type { AiProviderId } from "@/core/platform/commands";
+import type { AiProviderId, WindowMode } from "@/core/platform/commands";
 
 export type ThemePreference = "dark" | "light" | "system";
 
@@ -12,8 +12,8 @@ export interface ProviderSettings {
 export interface Settings {
   theme: ThemePreference;
   showMascot: boolean;
-  /** Hide the launcher when it loses focus (release builds). */
-  hideOnBlur: boolean;
+  /** Launcher (hides on blur), pinned (stays open, on top) or a normal window. */
+  windowMode: WindowMode;
   /** Suggest tools for what's on the clipboard when the launcher opens. */
   clipboardSuggestions: boolean;
   clipboard: {
@@ -61,6 +61,12 @@ export const AI_PROVIDERS: ReadonlyArray<{
   },
 ];
 
+export const WINDOW_MODES = [
+  "launcher",
+  "pinned",
+  "normal",
+] as const satisfies readonly WindowMode[];
+
 export const CLIPBOARD_SIZES = [50, 100, 200, 500] as const;
 
 const emptyProvider = (): ProviderSettings => ({ model: "", baseUrl: "" });
@@ -68,7 +74,7 @@ const emptyProvider = (): ProviderSettings => ({ model: "", baseUrl: "" });
 export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
   showMascot: true,
-  hideOnBlur: true,
+  windowMode: "launcher",
   clipboardSuggestions: true,
   clipboard: { enabled: true, maxItems: 200, ignoreSecrets: true },
   ai: {
@@ -118,7 +124,12 @@ export function mergeSettings(stored: unknown): Settings {
   return {
     theme: oneOf(stored.theme, ["dark", "light", "system"] as const, d.theme),
     showMascot: bool(stored.showMascot, d.showMascot),
-    hideOnBlur: bool(stored.hideOnBlur, d.hideOnBlur),
+    // Older versions had a "hide when unfocused" switch; off meant "stay open".
+    windowMode: oneOf(
+      stored.windowMode,
+      WINDOW_MODES,
+      stored.hideOnBlur === false ? "pinned" : d.windowMode,
+    ),
     clipboardSuggestions: bool(stored.clipboardSuggestions, d.clipboardSuggestions),
     clipboard: {
       enabled: bool(clip.enabled, d.clipboard.enabled),

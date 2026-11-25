@@ -10,12 +10,12 @@ describe("mergeSettings", () => {
   it("keeps valid values and drops wrong types", () => {
     const s = mergeSettings({
       theme: "light",
-      hideOnBlur: "yes",
+      windowMode: "floating",
       clipboard: { maxItems: 500, ignoreSecrets: false, enabled: 1 },
       ai: { defaultProvider: "openai", providers: { openai: { model: "gpt-4o", baseUrl: 42 } } },
     });
     expect(s.theme).toBe("light");
-    expect(s.hideOnBlur).toBe(true);
+    expect(s.windowMode).toBe("launcher");
     expect(s.clipboard).toEqual({ enabled: true, maxItems: 500, ignoreSecrets: false });
     expect(s.ai.defaultProvider).toBe("openai");
     expect(s.ai.providers.openai).toEqual({ model: "gpt-4o", baseUrl: "" });
@@ -31,6 +31,13 @@ describe("mergeSettings", () => {
     expect(s.theme).toBe("dark");
     expect(s.clipboard.maxItems).toBe(200);
     expect(s.ai.defaultProvider).toBe("anthropic");
+  });
+
+  it("keeps a valid window mode and migrates the old hide-on-blur switch", () => {
+    expect(mergeSettings({ windowMode: "normal" }).windowMode).toBe("normal");
+    expect(mergeSettings({ hideOnBlur: false }).windowMode).toBe("pinned");
+    expect(mergeSettings({ hideOnBlur: true }).windowMode).toBe("launcher");
+    expect(mergeSettings({ windowMode: "pinned", hideOnBlur: true }).windowMode).toBe("pinned");
   });
 
   it("does not share nested objects with the defaults", () => {

@@ -10,6 +10,7 @@ mod cli;
 mod clipboard_bridge;
 mod commands;
 mod error;
+mod shell_helper;
 mod tray;
 mod window;
 
@@ -31,7 +32,7 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .manage(window::PendingTool::default())
         .manage(window::BlurGuard::default())
-        .manage(window::HideOnBlur::default())
+        .manage(window::WindowModeState::default())
         .invoke_handler(tauri::generate_handler![
             commands::ports::list_listening_ports,
             commands::ports::kill_process,
@@ -44,7 +45,7 @@ pub fn run() {
             commands::ocr::ocr_image,
             commands::files::save_png,
             commands::files::save_json,
-            commands::app::set_hide_on_blur,
+            commands::app::set_window_mode,
             commands::app::app_data_dir,
             commands::hotkeys::get_hotkeys,
             commands::hotkeys::set_hotkey,

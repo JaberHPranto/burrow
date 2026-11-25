@@ -101,6 +101,7 @@ const aiKeys: Record<AiProviderId, boolean> = {
   custom: false,
 };
 let bridge: ClipboardBridgeStatus = {
+  outdated: false,
   installed: false,
   enabled: false,
   lastSeenSecsAgo: null,
@@ -115,7 +116,9 @@ const handlers: Record<string, Handler> = {
     ports = ports.filter((p) => p.pid !== args?.pid);
   },
   hide_launcher: () => undefined,
-  set_hide_on_blur: () => undefined,
+  set_window_mode: (args) => ({
+    keepAbove: args?.mode !== "pinned" || (bridge.installed && !bridge.outdated),
+  }),
   app_data_dir: () => "/home/you/.local/share/dev.burrow.app",
   save_json: (args) =>
     `/home/you/Documents/${String(args?.["x-file-name"] ?? "burrow-backup.json")}`,

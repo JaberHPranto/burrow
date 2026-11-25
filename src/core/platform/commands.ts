@@ -46,8 +46,18 @@ export interface AiTestResult {
   models: string[];
 }
 
+/** How the window behaves; mirrors `WindowMode` in `src-tauri/src/window.rs`. */
+export type WindowMode = "launcher" | "pinned" | "normal";
+
+export interface WindowModeResult {
+  /** False when Pinned can't keep the window on top (Wayland without the GNOME extension). */
+  keepAbove: boolean;
+}
+
 export interface ClipboardBridgeStatus {
   installed: boolean;
+  /** Installed but older than this Burrow ships (no window helper yet). */
+  outdated: boolean;
   enabled: boolean;
   lastSeenSecsAgo: number | null;
   shellVersion: number | null;
@@ -100,7 +110,7 @@ export const commands = {
     ),
   pickColor: () => call<PickedColor>("pick_color"),
   // ---- Settings
-  setHideOnBlur: (enabled: boolean) => call<void>("set_hide_on_blur", { enabled }),
+  setWindowMode: (mode: WindowMode) => call<WindowModeResult>("set_window_mode", { mode }),
   appDataDir: () => call<string>("app_data_dir"),
   saveJson: (json: string, fileName: string) =>
     callRaw<string | null>("save_json", new TextEncoder().encode(json), {
