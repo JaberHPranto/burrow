@@ -24,6 +24,10 @@ libc = "0.2"
 ashpd = { version = "0.12.3", default-features = false, features = ["tokio"] }
 tauri-plugin-dialog = "2"
 tokio = { version = "1", features = ["time", "fs", "process"] }
+zbus = { version = "5", default-features = false, features = ["tokio"] }
+keyring = { version = "3", features = ["async-secret-service", "tokio", "crypto-rust"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+tauri-plugin-autostart = "2"
 
 [profile.release]
 codegen-units = 1

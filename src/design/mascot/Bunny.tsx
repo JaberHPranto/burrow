@@ -115,8 +115,18 @@ export function Bunny({ mood = "curious", size = 96, peek = false, title }: Bunn
       <Mouth mood={mood} />
       {peek && (
         <g>
+          {/* hide the lower head, then draw the burrow (themed: dark mode needs a visible mound) */}
           <rect x="0" y="92" width="120" height="28" fill="var(--bg)" />
-          <ellipse cx="60" cy="93" rx="52" ry="8" fill={INK} />
+          <ellipse cx="60" cy="96" rx="57" ry="11" fill="var(--burrow-mound)" />
+          <ellipse
+            cx="60"
+            cy="93"
+            rx="49"
+            ry="7"
+            fill="var(--burrow-hole)"
+            stroke="var(--burrow-rim)"
+            strokeWidth="1.5"
+          />
         </g>
       )}
     </svg>

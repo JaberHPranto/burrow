@@ -1,5 +1,13 @@
 /** Fake command responses for browser-only UI development. Never used in the app. */
-import type { ListeningPort, OcrStatus, OpenToolRequest, PickedColor } from "./commands";
+import type {
+  AiProviderId,
+  ClipboardBridgeStatus,
+  HotkeysState,
+  ListeningPort,
+  OcrStatus,
+  OpenToolRequest,
+  PickedColor,
+} from "./commands";
 
 let ports: ListeningPort[] = [
   {
@@ -71,6 +79,33 @@ async function fakeScreenshot(): Promise<ArrayBuffer> {
   return blob.arrayBuffer();
 }
 
+const hotkeys: HotkeysState = {
+  supported: true,
+  hotkeys: [
+    { id: "launcher", name: "Burrow: launcher", binding: "<Control><Alt>space" },
+    { id: "screenshot", name: "Burrow: screenshot", binding: "<Control><Alt>s" },
+    { id: "ocr", name: "Burrow: grab text (OCR)", binding: "<Control><Alt>o" },
+    { id: "color", name: "Burrow: pick colour", binding: "<Control><Alt>c" },
+    { id: "clipboard", name: "Burrow: clipboard history", binding: null },
+    { id: "tasks", name: "Burrow: tasks", binding: null },
+    { id: "notes", name: "Burrow: quick notes", binding: "<Control><Alt>n" },
+    { id: "settings", name: "Burrow: settings", binding: null },
+  ],
+};
+const aiKeys: Record<AiProviderId, boolean> = {
+  openai: false,
+  anthropic: true,
+  openrouter: false,
+  ollama: false,
+  custom: false,
+};
+let bridge: ClipboardBridgeStatus = {
+  installed: false,
+  enabled: false,
+  lastSeenSecsAgo: null,
+  shellVersion: 42,
+};
+
 type Handler = (args?: Record<string, unknown>) => unknown;
 
 const handlers: Record<string, Handler> = {
@@ -79,6 +114,38 @@ const handlers: Record<string, Handler> = {
     ports = ports.filter((p) => p.pid !== args?.pid);
   },
   hide_launcher: () => undefined,
+  set_hide_on_blur: () => undefined,
+  app_data_dir: () => "/home/you/.local/share/dev.burrow.app",
+  save_json: (args) =>
+    `/home/you/Documents/${String(args?.["x-file-name"] ?? "burrow-backup.json")}`,
+  get_hotkeys: () => structuredClone(hotkeys), // real IPC returns a fresh copy
+  set_hotkey: (args) => {
+    const hk = hotkeys.hotkeys.find((h) => h.id === args?.id);
+    if (hk) hk.binding = (args?.binding as string | null) ?? null;
+  },
+  ai_key_status: () => ({ ...aiKeys }),
+  ai_set_key: (args) => {
+    aiKeys[args?.provider as AiProviderId] = true;
+  },
+  ai_delete_key: (args) => {
+    aiKeys[args?.provider as AiProviderId] = false;
+  },
+  ai_test: (args) =>
+    aiKeys[args?.provider as AiProviderId] || args?.provider === "ollama"
+      ? {
+          ok: true,
+          message: "Connected · 3 models",
+          models: ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"],
+        }
+      : { ok: false, message: "No API key saved yet.", models: [] },
+  clipboard_bridge_status: () => bridge,
+  install_clipboard_extension: () => {
+    bridge = { ...bridge, installed: true, enabled: true };
+    return "Installed. Log out and back in once so GNOME loads it.";
+  },
+  uninstall_clipboard_extension: () => {
+    bridge = { ...bridge, installed: false, enabled: false };
+  },
   take_pending_tool: (): OpenToolRequest | null => null,
   capture_screenshot: () => fakeScreenshot(),
   pick_color: (): PickedColor => ({ r: 136, g: 204, b: 166 }),

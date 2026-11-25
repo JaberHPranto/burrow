@@ -32,9 +32,32 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 | **SVG optimizer → JSX** | SVGO + typed React component output | `<svg>…</svg>` |
 | **Port inspector** | Who's listening on which port, with one-click stop | — |
 | **.env diff** | Missing / empty / undocumented keys vs `.env.example` | `KEY=value` lines |
+| **Clipboard history** | Everything you've copied: search, pin, `Enter` to copy again. Skips secrets and password-manager copies | — |
+| **Settings** | Hotkeys, AI provider keys, clipboard history, appearance, backup/restore | — |
 
 **Tasks quick-add syntax:** `!high` `!med` `!low` (or `!1` `!2` `!3`, `!!!`), `#tag`, and a date:
 `today`, `tomorrow`/`tmr`, a weekday (`fri`), `next week`, `in 3 days`, `in 2w`, `dec 5`, `2026-12-01`.
+
+## Settings
+
+Open it from the gear in the launcher footer, by searching “settings”, from the tray, or with `burrow --tool settings`.
+
+| Section | What you can change |
+|---|---|
+| **General** | Start on login, hide when unfocused, clipboard suggestions |
+| **Appearance** | Dark / light / follow the system; show or hide the bunny |
+| **Hotkeys** | Record a global shortcut for the launcher, screenshot, OCR, colour picker, clipboard history, tasks, notes or settings. Burrow writes them as GNOME custom shortcuts, warns about clashes and refuses GNOME's own (`Ctrl+Alt+T`…) |
+| **AI providers** | API keys for OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-compatible URL; default provider and model; “Test connection” lists the models. Keys live in the **system keyring** (GNOME Keyring), never in Burrow's files, and are never sent back to the UI |
+| **Clipboard** | Record on/off, how many items to keep, skip secrets, install the background-recording extension |
+| **Data** | Where data lives, export/import a JSON backup, reset. Backups don't include API keys |
+
+### Clipboard history on GNOME Wayland
+
+Wayland doesn't let apps watch the clipboard. Burrow ships a tiny GNOME Shell extension
+(`burrow-clipboard@burrow.dev`, GNOME 42–49) that forwards each text copy to Burrow over D-Bus. It stores nothing
+and makes no network calls; copies marked as coming from a password manager are dropped.
+Install it from **Settings → Clipboard → Install extension**, then **log out and back in once**.
+Without the extension, Burrow still records whatever is on the clipboard each time you open the launcher.
 
 **Schema mock** understands `type`, `properties`/`required`, `items`, `enum`, `const`, `format`
 (email, uuid, date-time, uri, …), string length, number ranges and `multipleOf`, `nullable`,
@@ -47,7 +70,7 @@ Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
 |---|---|---|
 | **1 ✅** | Launcher, clipboard suggestions, core dev tools | No special permissions needed |
 | **2 ✅** | Screenshot + annotation editor, OCR capture, colour picker, tasks, schema mock | Capture via `xdg-desktop-portal` (Wayland-safe); OCR via local Tesseract |
-| **3** | Emoji picker, clipboard history | Clipboard history on GNOME Wayland needs a small companion Shell extension |
+| **3** | Settings ✅, clipboard history ✅, emoji picker | Clipboard history uses a small companion Shell extension |
 | **4** | AI: summarize, grammar, rewrite, explain code/error, OCR → AI | Bring your own key (OpenAI, Anthropic, OpenRouter, Ollama); keys in the system keyring |
 
 ---
@@ -76,9 +99,11 @@ better with it) and a banner inside the tool with a copy-ready install command a
 | `xdg-desktop-portal-gnome` | Colour picker (and screenshot fallback) | **Required** for Colour picker | Can't pick colours from the screen | Installed by default on Ubuntu; else `sudo apt install xdg-desktop-portal-gnome` |
 | `tesseract-ocr`, `tesseract-ocr-eng` | OCR capture | **Required** for OCR | OCR shows install instructions instead | `sudo apt install tesseract-ocr tesseract-ocr-eng` |
 | `tesseract-ocr-ben` | OCR capture | Optional | No Bangla recognition (English still works) | `sudo apt install tesseract-ocr-ben` |
-| `gsettings` (GNOME) | `scripts/setup-gnome-shortcuts.sh` | For hotkeys | Can't register hotkeys | Part of GNOME |
+| `gsettings` (GNOME) | Settings → Hotkeys, `scripts/setup-gnome-shortcuts.sh` | For hotkeys | Can't register hotkeys | Part of GNOME |
+| GNOME Keyring (Secret Service) | Settings → AI providers | For AI keys | Can't save API keys | Running by default on Ubuntu |
+| Burrow clipboard extension | Clipboard history (background) | Optional | History only updates when you open the launcher | Settings → Clipboard → Install |
 
-All other tools — Tasks, Quick notes, Markdown viewer, JSON formatter, Schema → mock, Password
+All other tools — Clipboard history, Tasks, Quick notes, Markdown viewer, JSON formatter, Schema → mock, Password
 generator, Lorem & fake data, Palette from image, SVG optimizer, Port inspector, .env diff — need
 nothing beyond the app itself.
 
@@ -113,7 +138,8 @@ sudo apt install ./src-tauri/target/release/bundle/deb/Burrow_*.deb
 
 ### Hotkeys
 
-Wayland doesn't let apps grab global shortcuts, so GNOME runs Burrow's CLI instead:
+Wayland doesn't let apps grab global shortcuts, so GNOME runs Burrow's CLI instead. Set them in
+**Settings → Hotkeys** (press the new combo), or apply the defaults below from a terminal:
 
 ```bash
 scripts/setup-gnome-shortcuts.sh   # finds an installed burrow, or your dev build
@@ -146,10 +172,11 @@ Inside Burrow: `↑` `↓` to move, `Enter` to open, `Esc` to go back or close.
 
 ```
 src/
-├── app/                 App shell + global store (route, recents, theme)
+├── app/                 App shell + global store (route, recents)
 ├── core/
 │   ├── tools/           Tool contract (types.ts) + registry (search, lookup)
-│   ├── clipboard/       Clipboard → tool suggestions
+│   ├── clipboard/       Clipboard → tool suggestions; clipboard history (logic + store)
+│   ├── settings/        Settings shape + store, theme resolution, hotkey accelerators
 │   ├── platform/        The ONLY place that talks to Tauri (commands, clipboard, events, mocks)
 │   ├── storage/         Persistent key-value store + usePersistentState
 │   ├── color/           Shared colour maths (parsing, conversion, OKLCH)
@@ -158,7 +185,7 @@ src/
 │   ├── search/          Fuzzy scorer
 │   └── hooks/           Shared hooks (list navigation, image paste/drop)
 ├── design/              PawsDev design system: tokens, components, Bunny mascot
-├── features/            Launcher and tool host (the frame around every tool)
+├── features/            Launcher, tool host, Settings screen (sections/ = one file per section)
 └── tools/<id>/          One folder per tool — index.ts, logic.ts (+ test), View.tsx
 
 src-tauri/src/
@@ -166,8 +193,10 @@ src-tauri/src/
 ├── cli.rs               --toggle / --tool parsing
 ├── window.rs            Show / hide / toggle, open-tool events, blur guard
 ├── tray.rs              Tray menu
-└── commands/            capture (portal screenshot + colour), ocr (tesseract),
-                         files (save dialog), ports (/proc), app
+├── clipboard_bridge.rs  D-Bus service the Shell extension pushes copies to
+└── commands/            capture (portal screenshot + colour), ocr (tesseract), files (save dialogs),
+                         ports (/proc), hotkeys (gsettings), ai (keyring + test), clipboard (extension), app
+src-tauri/extension/     The GNOME Shell extension (legacy 42–44 and ESM 45+ variants)
 ```
 
 **Design rules**

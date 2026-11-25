@@ -6,6 +6,8 @@ export type { OpenToolRequest } from "./commands";
 export const EVENTS = {
   openTool: "burrow://open-tool",
   shown: "burrow://shown",
+  /** Clipboard text forwarded by the GNOME Shell extension (payload: string). */
+  clipboard: "burrow://clipboard",
 } as const;
 
 type Unlisten = () => void;

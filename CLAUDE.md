@@ -37,7 +37,9 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
 | `src/core/deps/` | Optional system packages: catalogue, `reportFor` badge logic, status store | When a tool uses a system package, add it to `catalog.ts` + `commands/deps.rs` and list it in the tool's `requires`. Update the README dependency table. |
 | `src/core/capture/` | Region selection overlay (`useSnip`), crop/decode helpers | Shared by Screenshot and OCR. Geometry is pure and tested. |
 | `src/design/` | Design system | Tools import UI only from `@/design`. No raw colours: use tokens. |
-| `src/features/` | Launcher and ToolHost | App chrome, not tools. |
+| `src/features/` | Launcher, ToolHost, Settings | App chrome, not tools. Settings is registered as tool `settings` (category `app`) so it's searchable and opens via `--tool settings`; its input picks a section (`"hotkeys"`, `"ai"`…). Add a section: a component in `features/settings/sections/` + one entry in `SECTIONS`. |
+| `src/core/settings/` | App settings (`useSettings`), theme, accelerators | One typed `Settings` object; add a field to `Settings` + `DEFAULT_SETTINGS` + `mergeSettings`. Native side effects go in `applyNative`. Use `useResolvedTheme()` for the actual theme. |
+| `src/core/clipboard/` | Suggestions + clipboard history | `useClipHistory.record(text, source)` respects the clipboard settings; history is fed by the Shell extension (`EVENTS.clipboard`) and on launcher open. |
 | `src-tauri/src/commands/<tool>.rs` | Native code for one tool | Validate every argument. Return `crate::error::Result`. Add unit tests for parsing logic. |
 
 ## Adding a tool (checklist)
@@ -109,7 +111,13 @@ Use `src/tools/json-formatter/` as the reference implementation.
   mapping uses `containFit`.
 - **Colour picking:** portal `PickColor` (GNOME's own eyedropper).
 - **OCR:** system `tesseract` binary (`commands/ocr.rs`); the tool shows install instructions if missing.
-- **Clipboard history (phase 3):** background clipboard watching isn't possible on GNOME Wayland. Plan: a small companion GNOME Shell extension that forwards copies to Burrow.
+- **Clipboard history:** background clipboard watching isn't possible on GNOME Wayland, so `src-tauri/extension/`
+  (legacy 42–44 + ESM 45+) forwards copies over D-Bus to `dev.burrow.Clipboard` (`clipboard_bridge.rs`), which emits
+  `burrow://clipboard`. Installed from Settings (`commands/clipboard.rs`); keep the extension tiny: no storage, no network.
+- **Hotkeys:** `commands/hotkeys.rs` owns a fixed `ACTIONS` table; the webview only picks an action id + accelerator,
+  never the command line. Keep `ACTIONS` ids in sync with the Settings UI and tool ids.
+- **AI keys:** `commands/ai.rs` stores keys in the Secret Service keyring (service `dev.burrow.app`, user `ai:<provider>`).
+  Keys go in, never come back out to the webview. Keyring calls run on a plain thread (`off_runtime`).
 - **Launcher window:** frameless, always on top, skip taskbar, hides on blur in release builds only. Drag regions use `data-tauri-drag-region`.
 
 ## Screenshot editor internals
@@ -124,6 +132,5 @@ draw it in `render.ts`, add a tool button in `View.tsx`.
 ## Roadmap
 
 - Phase 2 ✅: screenshot + annotation editor, OCR, colour picker, tasks, schema mock
-- Phase 3: emoji picker (emojibase), clipboard history (Shell extension)
+- Phase 3: Settings ✅, clipboard history ✅ (Shell extension), emoji picker (emojibase)
 - Phase 4: AI tools with BYOK (OpenAI-compatible client + Anthropic; keys in keyring; streaming UI)
-- Settings screen (hotkeys, theme, autostart via `tauri-plugin-autostart`)

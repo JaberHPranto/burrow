@@ -7,6 +7,7 @@
 //! - `commands` — `#[tauri::command]` handlers, one module per native capability
 
 mod cli;
+mod clipboard_bridge;
 mod commands;
 mod error;
 mod tray;
@@ -26,8 +27,11 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
+        // Start on login (Settings → General). No args → starts quietly in the tray.
+        .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .manage(window::PendingTool::default())
         .manage(window::BlurGuard::default())
+        .manage(window::HideOnBlur::default())
         .invoke_handler(tauri::generate_handler![
             commands::ports::list_listening_ports,
             commands::ports::kill_process,
@@ -39,9 +43,22 @@ pub fn run() {
             commands::ocr::ocr_status,
             commands::ocr::ocr_image,
             commands::files::save_png,
+            commands::files::save_json,
+            commands::app::set_hide_on_blur,
+            commands::app::app_data_dir,
+            commands::hotkeys::get_hotkeys,
+            commands::hotkeys::set_hotkey,
+            commands::ai::ai_key_status,
+            commands::ai::ai_set_key,
+            commands::ai::ai_delete_key,
+            commands::ai::ai_test,
+            commands::clipboard::clipboard_bridge_status,
+            commands::clipboard::install_clipboard_extension,
+            commands::clipboard::uninstall_clipboard_extension,
         ])
         .setup(|app| {
             tray::create(app.handle())?;
+            clipboard_bridge::start(app.handle());
             window::install_blur_to_hide(app.handle());
 
             match cli::parse(&std::env::args().collect::<Vec<_>>()) {

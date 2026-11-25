@@ -4,6 +4,8 @@
  * within each category.
  */
 import type { ToolDefinition } from "@/core/tools/types";
+import settings from "@/features/settings/definition";
+import clipboardHistory from "./clipboard-history";
 import colorPicker from "./color-picker";
 import envDiff from "./env-diff";
 import fakeData from "./fake-data";
@@ -24,6 +26,8 @@ export const tools: readonly ToolDefinition[] = [
   screenshot,
   ocr,
   colorPicker,
+  // clipboard
+  clipboardHistory,
   // notes & tasks
   tasks,
   quickNotes,
@@ -40,4 +44,6 @@ export const tools: readonly ToolDefinition[] = [
   // system
   portInspector,
   envDiff,
+  // app
+  settings,
 ];

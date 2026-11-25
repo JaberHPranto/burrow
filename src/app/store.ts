@@ -17,17 +17,14 @@ const prefs = storage.scope("app");
 interface AppState {
   route: Route;
   recents: string[];
-  theme: "dark" | "light";
   openTool: (id: string, options?: OpenToolOptions) => void;
   goHome: () => void;
-  toggleTheme: () => void;
   hydrate: () => Promise<void>;
 }
 
 export const useApp = create<AppState>((set, get) => ({
   route: { name: "home" },
   recents: [],
-  theme: "dark",
 
   openTool(id, options = {}) {
     const recents = [id, ...get().recents.filter((r) => r !== id)].slice(0, MAX_RECENTS);
@@ -43,17 +40,8 @@ export const useApp = create<AppState>((set, get) => ({
     set({ route: { name: "home" } });
   },
 
-  toggleTheme() {
-    const theme = get().theme === "dark" ? "light" : "dark";
-    set({ theme });
-    void prefs.set("theme", theme);
-  },
-
   async hydrate() {
-    const [recents, theme] = await Promise.all([
-      prefs.get<string[]>("recents"),
-      prefs.get<AppState["theme"]>("theme"),
-    ]);
-    set({ recents: recents ?? [], theme: theme ?? "dark" });
+    const recents = await prefs.get<string[]>("recents");
+    set({ recents: recents ?? [] });
   },
 }));

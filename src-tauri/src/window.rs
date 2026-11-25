@@ -31,6 +31,15 @@ pub struct PendingTool(pub Mutex<Option<OpenToolRequest>>);
 #[derive(Default)]
 pub struct BlurGuard(AtomicBool);
 
+/// User preference (Settings → General): hide the launcher when it loses focus.
+pub struct HideOnBlur(pub AtomicBool);
+
+impl Default for HideOnBlur {
+    fn default() -> Self {
+        Self(AtomicBool::new(true))
+    }
+}
+
 /// Suppress hide-on-blur for the lifetime of the returned guard.
 pub struct SuppressBlur(AppHandle);
 
@@ -109,7 +118,8 @@ pub fn install_blur_to_hide(app: &AppHandle) {
     if let Some(w) = main_window(app) {
         let handle = app.clone();
         w.on_window_event(move |event| {
-            let suppressed = handle.state::<BlurGuard>().0.load(Ordering::SeqCst);
+            let suppressed = handle.state::<BlurGuard>().0.load(Ordering::SeqCst)
+                || !handle.state::<HideOnBlur>().0.load(Ordering::SeqCst);
             if let WindowEvent::Focused(false) = event {
                 if !suppressed {
                     hide(&handle);

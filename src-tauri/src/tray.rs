@@ -18,6 +18,8 @@ const QUICK_TOOLS: &[(&str, &str, &str, bool)] = &[
     ("tool:color", "Pick colour", "color-picker", true),
     ("tool:tasks", "Tasks", "tasks", false),
     ("tool:notes", "Quick notes", "quick-notes", false),
+    ("tool:clipboard", "Clipboard history", "clipboard-history", false),
+    ("tool:settings", "Settings…", "settings", false),
 ];
 
 pub fn create(app: &AppHandle) -> tauri::Result<()> {

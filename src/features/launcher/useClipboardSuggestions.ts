@@ -1,3 +1,4 @@
+import { useClipHistory } from "@/core/clipboard/historyStore";
 import { type Suggestion, suggestForClipboard } from "@/core/clipboard/suggest";
 import { clipboard } from "@/core/platform/clipboard";
 import { EVENTS, onEvent } from "@/core/platform/events";
@@ -17,7 +18,10 @@ export function useClipboardSuggestions(): ClipboardSuggestions {
     let alive = true;
     const refresh = async () => {
       const text = await clipboard.readText();
-      if (alive) setState({ text, suggestions: suggestForClipboard(text, registry.all()) });
+      if (!alive) return;
+      setState({ text, suggestions: suggestForClipboard(text, registry.all()) });
+      // Without the GNOME extension this is how clipboard history learns about copies.
+      if (text) useClipHistory.getState().record(text, "launcher");
     };
     void refresh();
     const unlisten = onEvent(EVENTS.shown, refresh);

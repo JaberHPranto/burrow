@@ -2,11 +2,13 @@ import { useApp } from "@/app/store";
 import { reportFor } from "@/core/deps/logic";
 import { useDeps } from "@/core/deps/store";
 import { useListNavigation } from "@/core/hooks/useListNavigation";
+import { useSettings } from "@/core/settings/store";
+import { useResolvedTheme } from "@/core/settings/useResolvedTheme";
 import { registry } from "@/core/tools/registry";
 import { CATEGORY_LABELS, CATEGORY_ORDER, type ToolDefinition } from "@/core/tools/types";
 import { cx } from "@/core/utils/cx";
 import { Bunny, Chip, IconButton, Kbd, Tag, Tile } from "@/design";
-import { Moon, PackageX, Search, Sparkles, Sun } from "lucide-react";
+import { Moon, PackageX, Search, Settings, Sparkles, Sun } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./Launcher.module.css";
 import { useClipboardSuggestions } from "./useClipboardSuggestions";
@@ -35,9 +37,10 @@ export function Launcher({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("");
   const recents = useApp((s) => s.recents);
   const openTool = useApp((s) => s.openTool);
-  const theme = useApp((s) => s.theme);
+  const settings = useSettings((s) => s.settings);
+  const updateSettings = useSettings((s) => s.update);
+  const theme = useResolvedTheme();
   const depStatus = useDeps((s) => s.status);
-  const toggleTheme = useApp((s) => s.toggleTheme);
   const { text: clipText, suggestions } = useClipboardSuggestions();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -83,7 +86,9 @@ export function Launcher({ onClose }: { onClose: () => void }) {
   return (
     <div className={styles.launcher}>
       <header className={styles.header} data-tauri-drag-region>
-        <Bunny mood={query && flat.length === 0 ? "oops" : "curious"} size={44} peek />
+        {settings.showMascot && (
+          <Bunny mood={query && flat.length === 0 ? "oops" : "curious"} size={44} peek />
+        )}
         <div className={styles.searchWrap}>
           <Search aria-hidden className={styles.searchIcon} />
           <input
@@ -103,7 +108,7 @@ export function Launcher({ onClose }: { onClose: () => void }) {
         </div>
       </header>
 
-      {suggestions.length > 0 && !query && (
+      {settings.clipboardSuggestions && suggestions.length > 0 && !query && (
         <div className={styles.suggested} aria-label="Suggested for your clipboard">
           <span className={styles.suggestedLabel}>
             <Sparkles aria-hidden /> From clipboard
@@ -179,8 +184,9 @@ export function Launcher({ onClose }: { onClose: () => void }) {
         <IconButton
           icon={theme === "dark" ? Sun : Moon}
           label={theme === "dark" ? "Light theme" : "Dark theme"}
-          onClick={toggleTheme}
+          onClick={() => updateSettings({ theme: theme === "dark" ? "light" : "dark" })}
         />
+        <IconButton icon={Settings} label="Settings" onClick={() => openTool("settings")} />
       </footer>
     </div>
   );

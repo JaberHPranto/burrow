@@ -1,0 +1,8 @@
+{
+  "uuid": "burrow-clipboard@burrow.dev",
+  "name": "Burrow clipboard bridge",
+  "description": "Sends clipboard text to the Burrow app for its clipboard history. Stores nothing itself.",
+  "shell-version": ["42", "43", "44"],
+  "url": "https://github.com/JaberHPranto/burrow",
+  "version": 1
+}

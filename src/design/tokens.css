@@ -66,6 +66,11 @@
   --shadow-pop: 0 18px 48px rgba(0, 0, 0, 0.45);
   --sketch-shadow: none;
   --sketch-border: 1px solid var(--border);
+
+  /* Mascot burrow: a lighter mound so the hole reads against the dark background */
+  --burrow-mound: #3a3f4c;
+  --burrow-hole: #0b0c10;
+  --burrow-rim: rgba(255, 255, 255, 0.16);
 }
 
 /* Light — the hand-drawn Sippy Paws look: ink outlines + offset shadows */
@@ -92,4 +97,8 @@
   --shadow-pop: 0 18px 40px rgba(24, 26, 32, 0.12);
   --sketch-shadow: 3px 3px 0 var(--ink);
   --sketch-border: 1.5px solid var(--ink);
+
+  --burrow-mound: transparent;
+  --burrow-hole: var(--ink);
+  --burrow-rim: transparent;
 }

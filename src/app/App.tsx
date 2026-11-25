@@ -1,6 +1,9 @@
+import { useClipHistory } from "@/core/clipboard/historyStore";
 import { useDeps } from "@/core/deps/store";
 import { type OpenToolRequest, commands } from "@/core/platform/commands";
 import { EVENTS, onEvent } from "@/core/platform/events";
+import { useSettings } from "@/core/settings/store";
+import { useResolvedTheme } from "@/core/settings/useResolvedTheme";
 import { Toaster } from "@/design";
 import { Launcher } from "@/features/launcher/Launcher";
 import { ToolHost } from "@/features/tool-host/ToolHost";
@@ -9,7 +12,10 @@ import { useApp } from "./store";
 
 export function App() {
   const route = useApp((s) => s.route);
-  const theme = useApp((s) => s.theme);
+  const theme = useResolvedTheme();
+  const loadSettings = useSettings((s) => s.load);
+  const loadHistory = useClipHistory((s) => s.load);
+  const recordClip = useClipHistory((s) => s.record);
   const openTool = useApp((s) => s.openTool);
   const hydrate = useApp((s) => s.hydrate);
   const refreshDeps = useDeps((s) => s.refresh);
@@ -24,16 +30,22 @@ export function App() {
 
   useEffect(() => {
     void (async () => {
-      await hydrate();
+      await Promise.all([hydrate(), loadSettings(), loadHistory()]);
       // Cold start via `burrow --tool <id>`: Rust parked the request until we were ready.
       const pending = await commands.takePendingTool();
       if (pending) openTool(pending.id, { autoRun: pending.run });
     })();
-  }, [hydrate, openTool]);
+  }, [hydrate, loadSettings, loadHistory, openTool]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  // Clipboard history: copies forwarded by the GNOME Shell extension.
+  useEffect(() => {
+    const unlisten = onEvent<string>(EVENTS.clipboard, (text) => recordClip(text, "extension"));
+    return () => void unlisten.then((fn) => fn());
+  }, [recordClip]);
 
   // `burrow --tool <id>` (hotkeys, tray menu) → open that tool.
   useEffect(() => {

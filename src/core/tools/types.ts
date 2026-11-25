@@ -11,7 +11,8 @@ export type ToolCategory =
   | "generators"
   | "frontend"
   | "system"
-  | "ai";
+  | "ai"
+  | "app";
 
 /** Props every tool component receives from the host. */
 export interface ToolProps {
@@ -66,6 +67,7 @@ export const CATEGORY_LABELS: Record<ToolCategory, string> = {
   frontend: "Frontend",
   system: "System",
   ai: "AI",
+  app: "Burrow",
 };
 
 /** Display order of categories in the launcher. */
@@ -78,4 +80,5 @@ export const CATEGORY_ORDER: readonly ToolCategory[] = [
   "frontend",
   "system",
   "ai",
+  "app",
 ];

@@ -16,6 +16,9 @@
     "core:window:allow-center",
     "clipboard-manager:allow-write-image",
     "core:window:allow-set-fullscreen",
-    "core:window:allow-set-always-on-top"
+    "core:window:allow-set-always-on-top",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled"
   ]
 }

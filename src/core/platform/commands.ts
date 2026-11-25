@@ -26,6 +26,33 @@ export interface OcrStatus {
   languages: string[];
 }
 
+export interface HotkeyInfo {
+  id: string;
+  name: string;
+  /** GNOME accelerator like `<Control><Alt>s`, or null when unbound. */
+  binding: string | null;
+}
+
+export interface HotkeysState {
+  supported: boolean;
+  hotkeys: HotkeyInfo[];
+}
+
+export type AiProviderId = "openai" | "anthropic" | "openrouter" | "ollama" | "custom";
+
+export interface AiTestResult {
+  ok: boolean;
+  message: string;
+  models: string[];
+}
+
+export interface ClipboardBridgeStatus {
+  installed: boolean;
+  enabled: boolean;
+  lastSeenSecsAgo: number | null;
+  shellVersion: number | null;
+}
+
 export interface PickedColor {
   r: number;
   g: number;
@@ -72,6 +99,24 @@ export const commands = {
       }),
     ),
   pickColor: () => call<PickedColor>("pick_color"),
+  // ---- Settings
+  setHideOnBlur: (enabled: boolean) => call<void>("set_hide_on_blur", { enabled }),
+  appDataDir: () => call<string>("app_data_dir"),
+  saveJson: (json: string, fileName: string) =>
+    callRaw<string | null>("save_json", new TextEncoder().encode(json), {
+      "x-file-name": fileName,
+    }),
+  getHotkeys: () => call<HotkeysState>("get_hotkeys"),
+  setHotkey: (id: string, binding: string | null) => call<void>("set_hotkey", { id, binding }),
+  aiKeyStatus: () => call<Record<AiProviderId, boolean>>("ai_key_status"),
+  aiSetKey: (provider: AiProviderId, key: string) => call<void>("ai_set_key", { provider, key }),
+  aiDeleteKey: (provider: AiProviderId) => call<void>("ai_delete_key", { provider }),
+  aiTest: (provider: AiProviderId, baseUrl: string | null) =>
+    call<AiTestResult>("ai_test", { provider, baseUrl }),
+  clipboardBridgeStatus: () => call<ClipboardBridgeStatus>("clipboard_bridge_status"),
+  installClipboardExtension: () => call<string>("install_clipboard_extension"),
+  uninstallClipboardExtension: () => call<void>("uninstall_clipboard_extension"),
+
   /** Which optional system packages are installed (see core/deps/catalog.ts). */
   checkDependencies: () => call<Array<{ id: string; installed: boolean }>>("check_dependencies"),
 
