@@ -126,9 +126,17 @@ fn shell_quote(arg: &str) -> String {
     }
 }
 
+/// While Burrow runs, reinstalling it (a package upgrade) replaces its file, and Linux then
+/// reports its own path as "/usr/bin/burrow (deleted)". That suffix isn't part of the path:
+/// the new version lives at the plain path, which is what a shortcut should run.
+fn without_deleted_suffix(path: &str) -> &str {
+    path.strip_suffix(" (deleted)").unwrap_or(path)
+}
+
 fn command_for(action: &Action) -> Result<String> {
     let exe = std::env::current_exe()?;
-    let mut parts = vec![shell_quote(&exe.to_string_lossy())];
+    let exe = exe.to_string_lossy();
+    let mut parts = vec![shell_quote(without_deleted_suffix(&exe))];
     parts.extend(action.args.iter().map(|a| shell_quote(a)));
     Ok(parts.join(" "))
 }
@@ -219,6 +227,12 @@ mod tests {
         assert_eq!(list, vec!["/a/custom0/", "/a/burrow-launcher/"]);
         assert_eq!(format_list(&list), "['/a/custom0/', '/a/burrow-launcher/']");
         assert_eq!(format_list(&[]), "[]");
+    }
+
+    #[test]
+    fn ignores_the_deleted_suffix_after_an_upgrade() {
+        assert_eq!(without_deleted_suffix("/usr/bin/burrow (deleted)"), "/usr/bin/burrow");
+        assert_eq!(without_deleted_suffix("/usr/bin/burrow"), "/usr/bin/burrow");
     }
 
     #[test]
