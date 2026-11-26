@@ -1,16 +1,42 @@
 <p align="center">
-  <img src="src-tauri/icons/128x128.png" width="96" alt="Burrow bunny" />
+  <img src="docs/banner.jpg" alt="Burrow: your cozy dev toolbox for Linux. A Spotlight-style launcher with screenshots, OCR, clipboard history, emoji and bring-your-own-key AI." />
 </p>
 
-<h1 align="center">Burrow</h1>
+<p align="center">
+  <img alt="Linux" src="https://img.shields.io/badge/Linux-GNOME%20·%20Wayland-88CCA6?style=flat-square&labelColor=181A20" />
+  <img alt="Tauri 2" src="https://img.shields.io/badge/Tauri-2-A8DADC?style=flat-square&labelColor=181A20" />
+  <img alt="React 19" src="https://img.shields.io/badge/React-19-A8DADC?style=flat-square&labelColor=181A20" />
+  <img alt="Rust" src="https://img.shields.io/badge/Rust-native-F28B82?style=flat-square&labelColor=181A20" />
+  <img alt="AI: bring your own key" src="https://img.shields.io/badge/AI-bring%20your%20own%20key-F8E192?style=flat-square&labelColor=181A20" />
+</p>
 
-<p align="center">A cozy burrow of developer utilities for Linux — one hotkey away.</p>
+<p align="center">
+  <a href="#tools">Tools</a> ·
+  <a href="#settings">Settings</a> ·
+  <a href="#getting-started">Getting started</a> ·
+  <a href="#dependencies">Dependencies</a> ·
+  <a href="#architecture">Architecture</a>
+</p>
 
-Burrow lives in your tray. Press a hotkey, type a few letters, hit Enter. It also
-peeks at your clipboard and suggests the right tool: copy JSON and it offers
-**Format JSON**, copy a JSON Schema and it offers **Mock data from schema**.
+**Burrow** is a cozy burrow of developer utilities for Linux, one hotkey away. It lives in your tray:
+press a hotkey, type a few letters, hit Enter. It also peeks at your clipboard and suggests the right
+tool: copy JSON and it offers **Format JSON**, copy a JSON Schema and it offers **Mock data from schema**.
 
-Built with **Tauri 2 + React 19 + TypeScript**. Everything runs locally.
+### Highlights
+
+- **Screenshots without the fuss**: drag over any part of the screen, then copy, save or annotate
+  (arrows, boxes, numbered steps, blur). Sharp on HiDPI, works across monitors.
+- **OCR in one drag**: grab text from anything on screen, locally with Tesseract, in English or Bangla.
+- **Clipboard history** that actually works on GNOME Wayland, with search, pins and secret filtering.
+- **AI tools with your own key**: summarise, fix grammar, rewrite, translate, and turn rough notes into a
+  natural Slack or WhatsApp message. OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-compatible API.
+- **Everything at hand**: colour picker, emoji picker, tasks, quick notes and handy dev tools
+  (JSON, schema mocks, SVG → JSX, ports, `.env` diff…).
+- **Made for your desktop**: global hotkeys, a tray menu with your favourite tools, launcher / pinned /
+  normal window modes, dark and light themes.
+
+Built with **Tauri 2 + React 19 + TypeScript + Rust**. Your data stays on your computer; the only thing
+that leaves it is what you send to the AI provider you chose, directly from Burrow.
 
 ---
 
