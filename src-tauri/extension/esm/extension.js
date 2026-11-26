@@ -15,10 +15,12 @@ const OBJECT_PATH = "/dev/burrow/Clipboard";
 const MAX_LENGTH = 200000;
 
 // Window helper: Wayland apps can't keep themselves on top, but the Shell can.
-// Burrow calls SetAbove(its own pid, true) when you pin it. Exported on the
-// Shell's own bus connection (org.gnome.Shell) at /dev/burrow/Shell. The worst
-// any caller can do is toggle "always on top" for a window.
-const HELPER_VERSION = 2;
+// Burrow calls SetAbove(its own pid, true) when you pin it, and Center(its own
+// pid) each time it opens (Wayland apps can't position themselves either).
+// Exported on the Shell's own bus connection (org.gnome.Shell) at
+// /dev/burrow/Shell. The worst any caller can do is toggle "always on top" for
+// a window or move it to the middle of the monitor the pointer is on.
+const HELPER_VERSION = 3;
 const HELPER_PATH = "/dev/burrow/Shell";
 const HELPER_XML = `<node>
   <interface name="dev.burrow.Shell">
@@ -26,6 +28,10 @@ const HELPER_XML = `<node>
     <method name="SetAbove">
       <arg type="u" direction="in" name="pid"/>
       <arg type="b" direction="in" name="above"/>
+      <arg type="b" direction="out" name="found"/>
+    </method>
+    <method name="Center">
+      <arg type="u" direction="in" name="pid"/>
       <arg type="b" direction="out" name="found"/>
     </method>
   </interface>
@@ -45,6 +51,26 @@ const windowHelper = {
       else win.unmake_above();
     }
     return found;
+  },
+  // Centre the pid's window on the monitor under the pointer (Spotlight-style).
+  // Returns false until the window is mapped and has a size, so callers retry.
+  Center(pid) {
+    for (const actor of global.get_window_actors()) {
+      const win = actor.get_meta_window();
+      if (!win || win.get_pid() !== pid) continue;
+      const monitor = global.display.get_current_monitor();
+      if (win.get_monitor() !== monitor) win.move_to_monitor(monitor);
+      const frame = win.get_frame_rect();
+      if (frame.width === 0 || frame.height === 0) return false;
+      const area = win.get_work_area_for_monitor(monitor);
+      win.move_frame(
+        true,
+        area.x + Math.round((area.width - frame.width) / 2),
+        area.y + Math.round((area.height - frame.height) / 2),
+      );
+      return true;
+    }
+    return false;
   },
 };
 

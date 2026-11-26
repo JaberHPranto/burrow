@@ -1,10 +1,12 @@
 //! Client for the window half of the Burrow GNOME Shell extension (`src-tauri/extension`).
 //!
-//! On Wayland an app can't keep its own window above others; GNOME ignores the
-//! request. The extension runs inside GNOME Shell, which can, so it exports a
-//! tiny D-Bus object on the Shell's own connection:
+//! On Wayland an app can't keep its own window above others, or place it on
+//! screen; GNOME ignores both requests. The extension runs inside GNOME Shell,
+//! which can do either, so it exports a tiny D-Bus object on the Shell's own
+//! connection:
 //!   bus `org.gnome.Shell`, path `/dev/burrow/Shell`, interface `dev.burrow.Shell`
-//!   Ping() -> u (helper version), SetAbove(u pid, b above) -> b (window found)
+//!   Ping() -> u (helper version), SetAbove(u pid, b above) -> b (window found),
+//!   Center(u pid) -> b (moved)
 //! Every call is best-effort with a short timeout: no extension = `false`.
 
 use std::time::Duration;
@@ -43,4 +45,10 @@ pub async fn available() -> bool {
 /// Returns false if the extension isn't running or the window isn't mapped.
 pub async fn set_above(above: bool) -> bool {
     call::<_, bool>("SetAbove", &(std::process::id(), above)).await.unwrap_or(false)
+}
+
+/// Ask GNOME Shell to centre Burrow's window on the monitor under the pointer.
+/// Returns false if the extension isn't running or the window isn't mapped yet.
+pub async fn center() -> bool {
+    call::<_, bool>("Center", &(std::process::id(),)).await.unwrap_or(false)
 }

@@ -159,6 +159,12 @@ Burrow ask GNOME Shell to keep its window above others. Without it, a pinned Bur
 `Alt+Space` on it and choose **Always on Top**. (On X11 sessions this works without the extension.)
 If you installed the extension before pinning existed, Settings offers an **Update**, then log out and back in once.
 
+### Opening in the centre
+
+Wayland apps can't position their own windows either, so without the extension Burrow opens wherever GNOME
+puts it (usually near the top-left). With the extension installed, Burrow opens in the middle of the monitor
+your pointer is on, every time. Same rule: after an extension update, log out and back in once.
+
 ## Roadmap
 
 | Phase | What | Notes |

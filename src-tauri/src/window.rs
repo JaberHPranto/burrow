@@ -84,6 +84,23 @@ fn repin_after_show(app: &AppHandle) {
     });
 }
 
+/// Wayland apps can't position their own window (`center()` is ignored), so ask
+/// the Shell helper to do it. The window isn't mapped the instant `show` returns,
+/// so retry briefly. Without the extension this quietly does nothing.
+fn center_after_show() {
+    if !crate::shell_helper::is_wayland() {
+        return;
+    }
+    tauri::async_runtime::spawn(async {
+        for _ in 0..12 {
+            tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+            if crate::shell_helper::center().await {
+                return;
+            }
+        }
+    });
+}
+
 /// Suppress hide-on-blur for the lifetime of the returned guard.
 pub struct SuppressBlur(AppHandle);
 
@@ -110,6 +127,7 @@ pub fn show(app: &AppHandle) {
         let _ = w.show();
         let _ = w.set_focus();
         let _ = app.emit(EVENT_SHOWN, ());
+        center_after_show();
         repin_after_show(app);
     }
 }

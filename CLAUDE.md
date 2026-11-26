@@ -139,6 +139,8 @@ Use `src/tools/json-formatter/` as the reference implementation.
   in Alt+Tab). `set_window_mode` → `window::apply_mode`. Wayland ignores an app's always-on-top, so pinning goes through
   the GNOME extension's window helper (`shell_helper.rs`: `org.gnome.Shell` `/dev/burrow/Shell` `SetAbove(pid, above)`),
   re-applied after every show because hidden Wayland windows are recreated. `PinButton` (features/window) toggles it.
+  The same helper centres the window on the pointer's monitor after every show (`Center(pid)`, retried until the
+  window is mapped; `window::center_after_show`), since Wayland ignores `set_position`/`center`.
   Changing the extension: bump `version` in both metadata.json files so Settings offers an update.
 - **Window chrome:** the OS window is transparent; the app is a rounded card with a shadow inside a 14px gutter
   (`html[data-window="floating"]`, `--window-gutter` = `WINDOW_GUTTER` in `core/platform/window.ts`). Sizes passed to
