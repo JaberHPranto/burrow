@@ -11,6 +11,7 @@
 </p>
 
 <p align="center">
+  <a href="#install">Install</a> ·
   <a href="#tools">Tools</a> ·
   <a href="#settings">Settings</a> ·
   <a href="#getting-started">Getting started</a> ·
@@ -37,6 +38,22 @@ tool: copy JSON and it offers **Format JSON**, copy a JSON Schema and it offers 
 
 Built with **Tauri 2 + React 19 + TypeScript + Rust**. Your data stays on your computer; the only thing
 that leaves it is what you send to the AI provider you chose, directly from Burrow.
+
+---
+
+## Install
+
+Download the latest **`.deb`** from the [Releases page](https://github.com/JaberHPranto/burrow/releases/latest), then:
+
+```bash
+sudo apt install ./Burrow_*_amd64.deb
+```
+
+Open **Burrow** from your app grid (or run `burrow`), then set your hotkeys in **Settings → Hotkeys**.
+Built for Ubuntu 22.04+ with GNOME. Some tools need small extra packages; the app tells you which,
+and the [dependency list](#to-run-per-feature) has copy-ready commands.
+
+To update, download the newer `.deb` and run the same command; your settings and notes are kept.
 
 ---
 
@@ -207,10 +224,10 @@ Dev builds don't hide on blur, so devtools stay usable (right-click → Inspect)
 **UI-only mode:** `npm run dev` and open http://localhost:1420 in a browser.
 The platform layer swaps native calls for mock data, which is handy for styling work.
 
-### Build & install
+### Build & install from source
 
 ```bash
-npm run app:build      # → src-tauri/target/release/bundle/{deb,appimage}/
+npm run app:build      # → src-tauri/target/release/bundle/deb/
 sudo apt install ./src-tauri/target/release/bundle/deb/Burrow_*.deb
 ```
 

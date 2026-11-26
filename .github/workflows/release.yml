@@ -1,0 +1,64 @@
+# Builds the .deb and attaches it to a GitHub Release.
+#
+# Release a new version:
+#   1. bump "version" in package.json, src-tauri/tauri.conf.json and src-tauri/Cargo.toml
+#   2. git tag v0.2.0 && git push origin v0.2.0
+#
+# Built on Ubuntu 22.04 on purpose: a .deb links against the system's glibc and WebKitGTK,
+# so building on the oldest Ubuntu we support keeps it installable on newer ones.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # create the release and upload the file
+
+jobs:
+  deb:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches the app version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          app="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$app" ]; then
+            echo "Tag v$tag does not match package.json version $app"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - run: npm ci
+
+      - name: Check
+        run: npm run check
+
+      - name: Build the .deb
+        run: npm run app:build
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" src-tauri/target/release/bundle/deb/*.deb \
+            --title "Burrow $GITHUB_REF_NAME" \
+            --generate-notes

@@ -43,6 +43,13 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
 | `src/core/clipboard/` | Suggestions + clipboard history | `useClipHistory.record(text, source)` respects the clipboard settings; history is fed by the Shell extension (`EVENTS.clipboard`) and on launcher open. |
 | `src-tauri/src/commands/<tool>.rs` | Native code for one tool | Validate every argument. Return `crate::error::Result`. Add unit tests for parsing logic. |
 
+## Releasing
+
+`.github/workflows/release.yml` builds the `.deb` on Ubuntu 22.04 and publishes a GitHub Release when a `v*` tag is pushed.
+Bump `version` in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml` (the workflow fails if the tag
+and `package.json` disagree), then `git tag vX.Y.Z && git push origin vX.Y.Z`. Only the `.deb` is built; AppImage was dropped
+because linuxdeploy fails on some setups.
+
 ## Adding a tool (checklist)
 
 1. Create `src/tools/<id>/` (kebab-case id, never renamed later; it's used in CLI args and storage keys):
