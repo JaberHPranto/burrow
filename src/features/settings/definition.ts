@@ -23,6 +23,8 @@ export default defineTool({
     "api key",
     "theme",
     "backup",
+    "tray",
+    "menu",
   ],
   component: lazy(() => import("./SettingsView")),
 });
