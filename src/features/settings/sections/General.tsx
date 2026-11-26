@@ -17,7 +17,7 @@ const MODES = [
 const MODE_HELP: Record<WindowMode, string> = {
   launcher: "Hides when you click elsewhere, like Spotlight. Open it again with your hotkey.",
   pinned:
-    "Stays open and above other windows until you unpin it. Also: the pin button in the header.",
+    "Stays open and above other windows until you unpin it. Also: the pin button in each tool's header.",
   normal: "Stays open like a regular window: other windows can cover it, and it shows in Alt+Tab.",
 };
 

@@ -110,7 +110,7 @@ Without the extension, Burrow still records whatever is on the clipboard each ti
 
 ### Pinning the window
 
-The pin button (launcher footer and every tool's header) keeps Burrow open while you work in other windows.
+The pin button in every tool's header keeps Burrow open while you work in other windows.
 GNOME on Wayland doesn't let apps put themselves on top, so the same extension does that part: it lets
 Burrow ask GNOME Shell to keep its window above others. Without it, a pinned Burrow still stays open; press
 `Alt+Space` on it and choose **Always on Top**. (On X11 sessions this works without the extension.)
