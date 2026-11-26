@@ -298,7 +298,7 @@ See [CLAUDE.md](CLAUDE.md) for conventions and a step-by-step "add a tool" guide
 | Command | |
 |---|---|
 | `npm run app:dev` | Run the desktop app |
-| `npm run app:build` | Build `.deb` + AppImage |
+| `npm run app:build` | Build the `.deb` (in `src-tauri/target/release/bundle/deb/`) |
 | `npm run dev` | UI only, in the browser with mocks |
 | `npm run check` | Typecheck + lint + tests |
 | `npm test` | Vitest |
