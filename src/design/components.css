@@ -662,3 +662,8 @@ button.b-chip:hover {
 .b-prose > :last-child {
   margin-bottom: 0;
 }
+
+.b-switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

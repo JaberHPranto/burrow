@@ -4,6 +4,8 @@ import { type OpenToolRequest, commands } from "@/core/platform/commands";
 import { EVENTS, onEvent } from "@/core/platform/events";
 import { useSettings } from "@/core/settings/store";
 import { useResolvedTheme } from "@/core/settings/useResolvedTheme";
+import { registry } from "@/core/tools/registry";
+import { trayItems } from "@/core/tray/tray";
 import { Toaster } from "@/design";
 import { Launcher } from "@/features/launcher/Launcher";
 import { ToolHost } from "@/features/tool-host/ToolHost";
@@ -19,6 +21,8 @@ export function App() {
   const openTool = useApp((s) => s.openTool);
   const hydrate = useApp((s) => s.hydrate);
   const refreshDeps = useDeps((s) => s.refresh);
+  const settingsLoaded = useSettings((s) => s.loaded);
+  const trayIds = useSettings((s) => s.settings.tray);
 
   // Check optional packages at startup and whenever the launcher is shown
   // (cheap: a few PATH lookups), so badges clear right after an install.
@@ -40,6 +44,12 @@ export function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  // Tray menu: the tools chosen in Settings → Tray (Rust shows defaults until then).
+  useEffect(() => {
+    if (!settingsLoaded) return;
+    void commands.setTrayItems(trayItems(trayIds, registry.all())).catch(() => {});
+  }, [settingsLoaded, trayIds]);
 
   // Clipboard history: copies forwarded by the GNOME Shell extension.
   useEffect(() => {

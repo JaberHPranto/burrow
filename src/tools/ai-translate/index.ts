@@ -11,6 +11,7 @@ export default defineTool({
   icon: Languages,
   tone: "mint",
   keywords: ["translate", "translation", "language", "bangla", "bengali", "english", "ai"],
+  tray: { label: "Translate clipboard", run: true },
   component: lazy(() => import("./View")),
   detect: detectForeignScript,
 });

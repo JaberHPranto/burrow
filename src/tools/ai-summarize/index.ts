@@ -11,6 +11,7 @@ export default defineTool({
   icon: ScrollText,
   tone: "mint",
   keywords: ["summarize", "summarise", "summary", "tldr", "tl;dr", "digest", "ai", "key points"],
+  tray: { label: "Summarise clipboard", run: true },
   component: lazy(() => import("./View")),
   detect: detectLongProse,
 });

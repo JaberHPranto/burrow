@@ -12,6 +12,7 @@ export default defineTool({
   tone: "butter",
   keywords: ["color", "colour", "picker", "eyedropper", "hex", "rgb", "hsl", "oklch"],
   requires: [{ id: "portal", level: "required", why: "provides GNOME's on-screen colour picker" }],
+  tray: { label: "Pick colour", run: true },
   component: lazy(() => import("./View")),
   detect: detectColor,
 });

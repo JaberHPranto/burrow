@@ -12,6 +12,8 @@ export interface ProviderSettings {
 export interface Settings {
   theme: ThemePreference;
   showMascot: boolean;
+  /** Tool ids shown in the tray menu (Settings → Tray), in catalogue order. */
+  tray: string[];
   /** Launcher (hides on blur), pinned (stays open, on top) or a normal window. */
   windowMode: WindowMode;
   /** Suggest tools for what's on the clipboard when the launcher opens. */
@@ -67,6 +69,18 @@ export const WINDOW_MODES = [
   "normal",
 ] as const satisfies readonly WindowMode[];
 
+/** The tray menu's tools until the user changes them. */
+export const DEFAULT_TRAY = [
+  "screenshot",
+  "ocr",
+  "color-picker",
+  "tasks",
+  "quick-notes",
+  "clipboard-history",
+  "emoji-picker",
+] as const;
+export const MAX_TRAY_ITEMS = 20;
+
 export const CLIPBOARD_SIZES = [50, 100, 200, 500] as const;
 
 const emptyProvider = (): ProviderSettings => ({ model: "", baseUrl: "" });
@@ -75,6 +89,7 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
   showMascot: true,
   windowMode: "launcher",
+  tray: [...DEFAULT_TRAY],
   clipboardSuggestions: true,
   clipboard: { enabled: true, maxItems: 200, ignoreSecrets: true },
   ai: {
@@ -99,6 +114,15 @@ const oneOf = <T extends string>(v: unknown, options: readonly T[], d: T): T =>
  * Merge stored (possibly old, partial or hand-edited) settings over defaults,
  * dropping anything with the wrong type. Never throws.
  */
+/** A list of distinct kebab-case tool ids (unknown ids are dropped later, against the catalogue). */
+function toolIds(value: unknown, fallback: string[]): string[] {
+  if (!Array.isArray(value)) return [...fallback];
+  const ids = value.filter(
+    (v): v is string => typeof v === "string" && /^[a-z0-9-]{1,64}$/.test(v),
+  );
+  return [...new Set(ids)].slice(0, MAX_TRAY_ITEMS);
+}
+
 export function mergeSettings(stored: unknown): Settings {
   const d = DEFAULT_SETTINGS;
   if (!isObj(stored)) return structuredClone(d);
@@ -124,6 +148,7 @@ export function mergeSettings(stored: unknown): Settings {
   return {
     theme: oneOf(stored.theme, ["dark", "light", "system"] as const, d.theme),
     showMascot: bool(stored.showMascot, d.showMascot),
+    tray: toolIds(stored.tray, d.tray),
     // Older versions had a "hide when unfocused" switch; off meant "stay open".
     windowMode: oneOf(
       stored.windowMode,

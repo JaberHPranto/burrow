@@ -17,5 +17,6 @@ export default defineTool({
       why: "captures without GNOME's “Share this screenshot?” dialog",
     },
   ],
+  tray: { label: "Take screenshot", run: true },
   component: lazy(() => import("./View")),
 });

@@ -56,6 +56,7 @@ pub fn run() {
             commands::ai::ai_test,
             commands::ai_stream::ai_stream,
             commands::ai_stream::ai_cancel,
+            tray::set_tray_items,
             commands::clipboard::clipboard_bridge_status,
             commands::clipboard::install_clipboard_extension,
             commands::clipboard::uninstall_clipboard_extension,

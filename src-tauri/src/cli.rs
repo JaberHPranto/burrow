@@ -34,7 +34,7 @@ pub fn parse(argv: &[String]) -> Action {
 }
 
 /// Tool ids are kebab-case; anything else is ignored.
-fn is_valid_tool_id(id: &str) -> bool {
+pub fn is_valid_tool_id(id: &str) -> bool {
     !id.is_empty()
         && id.len() <= 64
         && id.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')

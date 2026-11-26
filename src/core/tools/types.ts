@@ -53,6 +53,11 @@ export interface ToolDefinition {
   requires?: readonly Requirement[];
   /** Optional: recognise clipboard text this tool can act on. Must be fast and pure. */
   detect?: (text: string) => ClipboardMatch | null;
+  /**
+   * Optional: how the tool appears in the tray menu (Settings → Tray decides whether it does).
+   * `label` defaults to `name`; `run` starts its main action straight away (like `--run`).
+   */
+  tray?: { label?: string; run?: boolean };
 }
 
 /** Identity helper that gives tool definitions full type checking. */

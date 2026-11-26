@@ -40,6 +40,13 @@ export interface HotkeysState {
 
 export type AiProviderId = "openai" | "anthropic" | "openrouter" | "ollama" | "custom";
 
+/** One quick tool in the tray menu; mirrors `TrayItem` in `src-tauri/src/tray.rs`. */
+export interface TrayItem {
+  id: string;
+  label: string;
+  run: boolean;
+}
+
 export interface AiMessage {
   role: "user" | "assistant";
   content: string;
@@ -155,6 +162,7 @@ export const commands = {
     }),
   getHotkeys: () => call<HotkeysState>("get_hotkeys"),
   setHotkey: (id: string, binding: string | null) => call<void>("set_hotkey", { id, binding }),
+  setTrayItems: (items: TrayItem[]) => call<void>("set_tray_items", { items }),
   aiStream,
   aiCancel: (id: string) => call<void>("ai_cancel", { id }),
   aiKeyStatus: () => call<Record<AiProviderId, boolean>>("ai_key_status"),

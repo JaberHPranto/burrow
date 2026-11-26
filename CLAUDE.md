@@ -69,8 +69,9 @@ A change is done when `npm run check` passes, plus `cargo test` and `cargo clipp
      hide itself when focus moves to that dialog.
    - Portal cancellations surface as the error string "cancelled"; check with `isCancelled(err)`
      and stay silent.
-5. Optional: tray quick action in `src-tauri/src/tray.rs` (`QUICK_TOOLS`, with a `run` flag) and a
-   hotkey in `scripts/setup-gnome-shortcuts.sh` (`burrow --tool <id> --run`).
+5. Optional: `tray: { label, run }` in `defineTool` (how it looks in the tray menu; users pick which tools
+   show in Settings → Tray, default list `DEFAULT_TRAY` in `core/settings/settings.ts`), and a hotkey in
+   `commands/hotkeys.rs` `ACTIONS` (`--tool <id> --run`).
 6. Update the tool table in `README.md`.
 
 Use `src/tools/json-formatter/` as the reference implementation.
@@ -101,7 +102,9 @@ Use `src/tools/json-formatter/` as the reference implementation.
 ## Platform notes (Linux / Wayland)
 
 - **Global hotkeys:** apps can't grab them on Wayland. GNOME custom shortcuts run `burrow --toggle` / `burrow --tool <id>`; `tauri-plugin-single-instance` forwards args to the running app (`cli.rs` → `window.rs`). Setup: `scripts/setup-gnome-shortcuts.sh`.
-- **Tray:** GNOME delivers no click events to tray icons, only the menu. Put actions in the menu.
+- **Tray:** GNOME delivers no click events to tray icons, only the menu. Put actions in the menu. The quick tools come
+  from Settings → Tray: `App` sends `trayItems(settings.tray, registry)` to `set_tray_items` (`tray.rs` validates and
+  rebuilds the menu; it shows its own default list until then). Menu ids are `open:<tool>` / `run:<tool>`.
 - **Screenshots:** whole-screen grab via `gnome-screenshot -f` (allow-listed by GNOME Shell → no dialog),
   falling back to `xdg-desktop-portal` via `ashpd` (`commands/capture.rs`), which on GNOME 42 asks
   "Share this screenshot?" each time for unsandboxed apps. Burrow hides, grabs the whole screen, then `core/capture/useSnip` shows it in a fullscreen

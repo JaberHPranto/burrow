@@ -19,5 +19,6 @@ export default defineTool({
     },
     { id: "tesseract-ben", level: "optional", why: "adds Bangla text recognition" },
   ],
+  tray: { label: "Grab text (OCR)", run: true },
   component: lazy(() => import("./View")),
 });

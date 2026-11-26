@@ -94,6 +94,7 @@ Open it from the gear in the launcher footer, by searching “settings”, from 
 |---|---|
 | **General** | Start on login; window behaviour (**Launcher** hides when you click away, **Pinned** stays open and on top, **Normal** behaves like a regular window); clipboard suggestions |
 | **Appearance** | Dark / light / follow the system; show or hide the bunny |
+| **Tray** | Choose which tools appear in the tray menu for quick access (capture tools and “… clipboard” AI tools start right away) |
 | **Hotkeys** | Record a global shortcut for the launcher, screenshot, OCR, colour picker, clipboard history, emoji picker, tasks, notes or settings. Burrow saves them as GNOME custom shortcuts, warns about clashes and refuses GNOME's own (`Ctrl+Alt+T`…) |
 | **AI providers** | API keys for OpenAI, Anthropic, OpenRouter, Ollama or any OpenAI-compatible URL; default provider and model; “Test connection” lists the models. Keys live in the **system keyring** (GNOME Keyring), never in Burrow's files, and are never sent back to the UI |
 | **Clipboard** | Record on/off, how many items to keep, skip secrets, install the background-recording extension |

@@ -133,6 +133,7 @@ const handlers: Record<string, Handler> = {
     const hk = hotkeys.hotkeys.find((h) => h.id === args?.id);
     if (hk) hk.binding = (args?.binding as string | null) ?? null;
   },
+  set_tray_items: () => undefined,
   ai_cancel: (args) => {
     cancelledStreams.add(String(args?.id));
   },

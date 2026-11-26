@@ -10,5 +10,6 @@ export default defineTool({
   icon: SpellCheck,
   tone: "aqua",
   keywords: ["grammar", "spelling", "spell check", "proofread", "typo", "correct", "fix", "ai"],
+  tray: { label: "Fix grammar of clipboard", run: true },
   component: lazy(() => import("./View")),
 });
